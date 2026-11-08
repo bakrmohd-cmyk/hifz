@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2c4691">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hifz Log">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+/* Standalone page: same reset the preview ran inside */
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Hifz Revision Log</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: mirrors the Flutter app. Top bar with language switch, chip tabs, one scrolling body, add-hizb sheet. */
+:root {
+  --bg: #f3f4f8; --surface: #ffffff; --surface2: #e8eaf1; --fg: #161b2b; --muted: #596177; --line: #cfd4e0;
+  --accent: #2c4691; --accent-fg: #ffffff; --accent-soft: #dde3f6; --err: #b3261e;
+  --c0: #d33f38; --c1: #e57d1c; --c2: #e2b813; --c3: #2f9455;
+  --t0: rgba(211,63,56,.22); --t1: rgba(229,125,28,.22); --t2: rgba(226,184,19,.26); --t3: rgba(47,148,85,.22);
+  --font: "Figtree", "Noto Naskh Arabic", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151f; --surface: #1a2030; --surface2: #262d40; --fg: #e8ecf5; --muted: #98a3b8; --line: #2f3850;
+    --accent: #9db2ff; --accent-fg: #11151f; --accent-soft: #2c3658; --err: #f2b8b5;
+    --c0: #ef6a62; --c1: #f29a43; --c2: #eecb3d; --c3: #4fbb78;
+    --t0: rgba(239,106,98,.28); --t1: rgba(242,154,67,.28); --t2: rgba(238,203,61,.28); --t3: rgba(79,187,120,.28);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151f; --surface: #1a2030; --surface2: #262d40; --fg: #e8ecf5; --muted: #98a3b8; --line: #2f3850;
+  --accent: #9db2ff; --accent-fg: #11151f; --accent-soft: #2c3658; --err: #f2b8b5;
+  --c0: #ef6a62; --c1: #f29a43; --c2: #eecb3d; --c3: #4fbb78;
+  --t0: rgba(239,106,98,.28); --t1: rgba(242,154,67,.28); --t2: rgba(238,203,61,.28); --t3: rgba(79,187,120,.28);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.45; margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 96px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); }
+.wrap { max-width: 640px; margin: 0 auto; }
+.preview-note { margin: 10px 0 0; font-size: 12px; color: var(--muted); background: var(--surface2); border-radius: 8px; padding: 6px 10px; }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); padding-top: 8px; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; }
+h1 { font-size: 1.25rem; margin: 0; font-weight: 700; }
+.lang { font: inherit; font-weight: 600; color: var(--accent); background: none; border: 0; padding: 10px 6px; cursor: pointer; }
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 10px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.chip { flex: none; font: inherit; font-size: 14px; font-weight: 500; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 8px 14px; border-radius: 10px; cursor: pointer; min-height: 40px; }
+.chip[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.chip.add { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+main { padding-top: 6px; display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.pad { padding: 12px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat { text-align: center; padding-bottom: 10px; }
+.stat i { display: block; height: 4px; margin-bottom: 8px; }
+.stat b { display: block; font-size: 1.5rem; line-height: 1.1; }
+.stat small { color: var(--muted); font-size: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.juz-h { display: flex; align-items: baseline; gap: 8px; font-weight: 700; margin-bottom: 8px; }
+.juz-h small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.wrapchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.hz { min-width: 110px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); text-align: center; font-weight: 600; }
+.pips { display: flex; justify-content: center; gap: 3px; flex-wrap: wrap; margin-top: 6px; min-height: 8px; }
+.pip { width: 8px; height: 8px; border-radius: 50%; border: 1.4px solid var(--muted); }
+.pip.on { background: var(--fg); }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+.prog-top { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px; }
+.prog-top span:last-child { font-weight: 400; color: var(--muted); }
+.meterbar { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--line); }
+.meterbar i { display: block; height: 100%; }
+.grp-h { display: flex; align-items: baseline; gap: 8px; font-weight: 700; padding: 6px 2px 0; }
+.grp-h small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.row { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; }
+.row .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; background: none; border: 0; font: inherit; color: inherit; text-align: start; padding: 8px 12px; cursor: pointer; min-height: 52px; }
+.row .main b { display: block; font-weight: 600; }
+.row .main small { color: var(--muted); font-size: 12px; }
+.meter { display: flex; gap: 3px; align-items: flex-end; height: 28px; flex: none; }
+.meter i { width: 8px; border-radius: 3px; background: var(--line); display: block; }
+.meter i:nth-child(1) { height: 40%; } .meter i:nth-child(2) { height: 60%; } .meter i:nth-child(3) { height: 80%; } .meter i:nth-child(4) { height: 100%; }
+.minus { flex: none; width: 40px; height: 40px; margin-inline-end: 6px; border-radius: 50%; border: 0; background: transparent; color: var(--fg); font-size: 22px; cursor: pointer; }
+.minus:hover { background: var(--surface2); }
+.btn { font: inherit; font-weight: 600; border-radius: 99px; border: 1px solid transparent; padding: 10px 18px; cursor: pointer; min-height: 40px; }
+.btn.filled { background: var(--accent); color: var(--accent-fg); }
+.btn.outline { background: transparent; color: var(--err); border-color: var(--line); border-radius: 99px; width: 100%; }
+.btn.text { background: none; color: var(--accent); padding: 8px 10px; }
+.empty { text-align: center; padding: 56px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.empty h2 { margin: 0; font-size: 1.3rem; } .empty p { margin: 0; color: var(--muted); max-width: 32ch; }
+.fab { position: fixed; inset-inline-end: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 15; font: inherit; font-weight: 600; background: var(--accent-soft); color: var(--accent); border: 0; border-radius: 16px; padding: 16px 20px; box-shadow: 0 3px 10px rgba(0,0,0,.25); cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: 100%; max-width: 640px; max-height: 82vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sheet h2 { font-size: 1.15rem; margin: 0; padding: 18px 16px 8px; }
+.sheet .list { overflow-y: auto; padding: 0 16px; flex: 1; }
+.sheet .item { padding-bottom: 12px; }
+.sheet .item-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sheet .item-h b { font-size: 14px; }
+.fchip { font: inherit; font-size: 14px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; min-height: 40px; }
+.fchip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.sheet .foot { padding: 12px 16px; } .sheet .foot .btn { width: 100%; }
+.confirm { display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 14px; }
+.confirm .acts { display: flex; gap: 4px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); }
+.hcard { border: 1px solid var(--line); background: var(--surface2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.hcard-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hcard-top b { font-size: 1rem; }
+.hcard-sub { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.hcard-sub .pips { margin: 0; min-height: 0; }
+.wp { display: flex; flex-direction: column; gap: 4px; }
+.wp label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.wp input { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; min-height: 42px; }
+.wp input::placeholder { color: var(--muted); opacity: .8; }
+.stats5 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.preview-note { margin: 12px 0 0; }
+header { padding-top: 2px; }
+.bar { padding: 2px 0; }
+h1 { font-size: 1.1rem; }
+.lang { padding: 8px 4px; }
+.tabs { padding: 2px 0 8px; gap: 6px; }
+.chip { padding: 6px 12px; min-height: 36px; font-size: 13.5px; }
+main { gap: 8px; padding-top: 2px; }
+.stats5 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.stats5 .stat { padding: 0 2px 6px; }
+.stats5 .stat i { height: 3px; margin-bottom: 6px; }
+.stats5 .stat b { font-size: 1.2rem; }
+.stats5 .stat small { font-size: 11px; display: block; line-height: 1.2; overflow-wrap: anywhere; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.grid .grp-h { grid-column: 1 / -1; padding: 6px 2px 0; font-size: 14px; }
+.tile { border: 1px solid var(--line); background: var(--surface2); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.tile-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.tile-top b { font-size: 14px; }
+.tile .pips { margin: 0; min-height: 0; gap: 2px; justify-content: flex-end; }
+.tile .pip { width: 6px; height: 6px; border-width: 1.2px; }
+.tile-st { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; min-width: 0; }
+.tile-st small { color: var(--muted); font-weight: 500; font-size: 11px; margin-inline-start: auto; }
+.tile input { font: inherit; font-size: 13px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-height: 34px; width: 100%; min-width: 0; }
+.tile input.has { border-inline-start: 4px solid var(--c0); }
+.tile input::placeholder { color: var(--muted); opacity: .85; }
+/* Tabs: four equal columns, so each hizb column (two per row) spans two tab buttons. */
+.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 2px 0 8px; }
+.tabs .chip { width: 100%; padding: 6px 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acts2 { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+.bar { flex-wrap: wrap; }
+.lang { font-size: 13px; }
+
+.prog-name { display: flex; align-items: center; gap: 4px; }
+.btn.small { font-size: 12px; padding: 4px 8px; min-height: 28px; font-weight: 600; }
+.card .confirm { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.grid .row { gap: 0; min-width: 0; }
+.grid .row .main { padding: 6px 8px; gap: 8px; min-height: 50px; }
+.grid .row .lab { min-width: 0; display: block; }
+.grid .row .main b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.grid .row .main small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.grid .minus { width: 34px; height: 34px; margin-inline-end: 2px; flex: none; }
+.grid .meter { height: 24px; }
+
+/* ---------- Alternative styles (set after the theme blocks so they win) ---------- */
+:root[data-skin] .card, :root[data-skin] .tile, :root[data-skin] .row, :root[data-skin] .chip, :root[data-skin] .fchip, :root[data-skin] .hcard { border-radius: var(--r); }
+:root[data-skin] .tile input, :root[data-skin] .btn.outline { border-radius: var(--r2); }
+
+/* Minimal: white, hairlines, square corners; status shown as a colour bar */
+:root[data-skin="minimal"] {
+  --bg: #ffffff; --surface: #ffffff; --surface2: #ffffff; --fg: #111111; --muted: #6b6b6b; --line: #e2e2e2;
+  --accent: #111111; --accent-fg: #ffffff; --accent-soft: #f0f0f0; --err: #c62828;
+  --c0: #e5484d; --c1: #f5a524; --c2: #e0b400; --c3: #30a46c;
+  --t0: transparent; --t1: transparent; --t2: transparent; --t3: transparent;
+  --r: 2px; --r2: 2px; color-scheme: light;
+}
+:root[data-skin="minimal"] .tile, :root[data-skin="minimal"] .row { border-color: var(--line) !important; background: var(--surface) !important; border-inline-start: 5px solid var(--lc, var(--line)) !important; }
+:root[data-skin="minimal"] .chip[aria-selected="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+:root[data-skin="minimal"] .fab { box-shadow: none; border: 1px solid var(--fg); background: var(--fg); color: var(--bg); border-radius: 2px; }
+:root[data-skin="minimal"] .grp-h { text-transform: none; letter-spacing: .02em; }
+/* ---------- Shared bits ---------- */
+.skinsel { appearance: none; -webkit-appearance: none; background: var(--surface2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; max-width: 150px; color: var(--accent); }
+.skinsel option { color: #111; background: #fff; }
+.wline { display: flex; gap: 6px; align-items: baseline; font-size: 12px; min-height: 32px; padding: 6px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.wline .wk { color: var(--muted); flex: none; }
+.wline .wv { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.wline.has { border-inline-start: 4px solid var(--c0); }
+.rcell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.rcell input { font: inherit; font-size: 13px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-height: 34px; width: 100%; min-width: 0; }
+.rcell input.has { border-inline-start: 4px solid var(--c0); }
+.rcell input::placeholder { color: var(--muted); opacity: .85; }
+:root[data-skin] .wline, :root[data-skin] .rcell input { border-radius: var(--r2); }
+
+/* Soft: pillowy, borderless boxes with shadows and generous rounding */
+:root[data-skin="soft"] {
+  --bg: #e8edf5; --surface: #ffffff; --surface2: #f4f6fb; --fg: #1d2540; --muted: #6a7391; --line: #dde3ef;
+  --accent: #5566ee; --accent-fg: #ffffff; --accent-soft: #e0e4ff; --err: #c8333d;
+  --c0: #ee6770; --c1: #f5a050; --c2: #efcb4b; --c3: #46bd85;
+  --t0: rgba(238,103,112,.2); --t1: rgba(245,160,80,.22); --t2: rgba(239,203,75,.28); --t3: rgba(70,189,133,.2);
+  --font: "Nunito", "Noto Naskh Arabic", system-ui, sans-serif; --r: 22px; --r2: 14px; color-scheme: light;
+}
+:root[data-skin="soft"] .card, :root[data-skin="soft"] .tile, :root[data-skin="soft"] .row { border-color: transparent !important; box-shadow: 0 3px 12px rgba(44,60,110,.12); }
+:root[data-skin="soft"] .chip { border-color: transparent; box-shadow: 0 2px 6px rgba(44,60,110,.1); border-radius: 999px; }
+:root[data-skin="soft"] .chip[aria-selected="true"] { background: var(--accent); color: var(--accent-fg); }
+:root[data-skin="soft"] .wline, :root[data-skin="soft"] .rcell input { border-color: transparent; border-radius: 999px; padding-inline: 12px; background: rgba(255,255,255,.8); }
+:root[data-skin="soft"] .wline.has, :root[data-skin="soft"] .rcell input.has { border-inline-start: 0; box-shadow: inset 0 0 0 2px var(--c0); }
+:root[data-skin="soft"] .btn.filled, :root[data-skin="soft"] .fab { background: var(--accent); color: var(--accent-fg); }
+:root[data-skin="soft"] .grp-h { padding-inline: 6px; }
+
+/* Blocks: solid colour-block tiles, the colour is the status */
+:root[data-skin="blocks"] {
+  --bg: #eceef2; --surface: #ffffff; --surface2: #dfe2e8; --fg: #10141f; --muted: #555d70; --line: #d3d7df;
+  --accent: #10141f; --accent-fg: #ffffff; --accent-soft: #dfe2e8; --err: #b3261e;
+  --c0: #c62828; --c1: #f28c28; --c2: #f2c618; --c3: #1b7f4a;
+  --t0: transparent; --t1: transparent; --t2: transparent; --t3: transparent;
+  --r: 6px; --r2: 4px; color-scheme: light;
+}
+:root[data-skin="blocks"] body { font-weight: 500; }
+:root[data-skin="blocks"] .tile, :root[data-skin="blocks"] .row { background: var(--lc) !important; color: var(--lx) !important; border-color: transparent !important; }
+:root[data-skin="blocks"] .tile b, :root[data-skin="blocks"] .row b { font-weight: 800; }
+:root[data-skin="blocks"] .row .main { color: var(--lx); }
+:root[data-skin="blocks"] .row .main small { color: inherit; opacity: .85; }
+:root[data-skin="blocks"] .minus { color: inherit; }
+:root[data-skin="blocks"] .minus:hover { background: rgba(0,0,0,.15); }
+:root[data-skin="blocks"] .tile .dot { background: var(--lx) !important; }
+:root[data-skin="blocks"] .tile .pip { border-color: currentColor; opacity: .8; }
+:root[data-skin="blocks"] .tile .pip.on { background: currentColor; opacity: 1; }
+:root[data-skin="blocks"] .tile .wline { background: rgba(255,255,255,.28); border-color: transparent; color: inherit; }
+:root[data-skin="blocks"] .tile .wline .wk { color: inherit; opacity: .8; }
+:root[data-skin="blocks"] .tile .wline.has { border-inline-start-color: var(--lx); }
+:root[data-skin="blocks"] .meter i:not([style]) { background: rgba(0,0,0,.18); }
+:root[data-skin="blocks"] .meter i[style] { background: var(--lx) !important; }
+:root[data-skin="blocks"] .chip[aria-selected="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+:root[data-skin="blocks"] .fab { background: var(--fg); color: var(--bg); box-shadow: none; border-radius: 6px; }
+:root[data-skin="blocks"] .rcell input.has { border-inline-start-color: var(--c0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="bar"><h1 id="ttl"></h1><div class="acts2"><select class="lang skinsel" id="skin"></select><button class="lang" id="lang" type="button"></button></div></div>
+    <nav class="tabs" id="tabs" aria-label="Tabs"></nav>
+  </header>
+  <main id="main"></main>
+  <p class="preview-note" id="pn"></p>
+</div>
+<button class="fab" id="fab" type="button" hidden></button>
+<div class="scrim" id="scrim" hidden><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div>
+
+<script>
+(function () {
+  var EN = {
+    appTitle: "Hifz Revision Log", overview: "Overview", addRound: "Round", addHizb: "Add memorised",
+    addTitle: "Choose the hizbs you have memorised", addBoth: "Add both", removeBoth: "Remove both", done: "Done", cancel: "Cancel", del: "Delete",
+    deleteRound: "Delete this round", deleteRoundQ: "Delete this round and all its ratings?", removeRound: "Remove round",
+    emptyTitle: "No hizbs yet", emptyBody: "Add the hizbs you have memorised. They appear here and in every round.",
+    tapToStart: "Tap to rate", lower: "Lower rating",
+    note: "Each hizb shows its rating and weak pages from the latest round (R2 means Round 2). To change them, open a round tab, tap a hizb to raise its rating and type its weak pages below it.",
+    notRated: "Not rated", notRatedAny: "Not rated in any round", latestIn: "Latest: ",
+    c0: "Weak", c1: "Good", c2: "Very good", c3: "Excellent",
+    h0: "Needs relearning", h1: "Some slips", h2: "A few hesitations", h3: "Strong and fluent",
+    weakPages: "Weak pages", weakPh: "e.g. 5, 7, 12-14", language: "العربية", style: "Style", s_classic: "Classic", s_minimal: "Minimal", s_soft: "Soft", s_blocks: "Blocks",
+    preview: "Your marks are saved on this device only."
+  };
+  var AR = {
+    appTitle: "سجل مراجعة الحفظ", overview: "نظرة عامة", addRound: "مراجعة", addHizb: "إضافة محفوظ",
+    addTitle: "اختر الأحزاب التي حفظتها", addBoth: "إضافة الحزبين", removeBoth: "إزالة الحزبين", done: "تم", cancel: "إلغاء", del: "حذف",
+    deleteRound: "حذف هذه المراجعة", deleteRoundQ: "هل تريد حذف هذه المراجعة وكل تقييماتها؟", removeRound: "حذف المراجعة",
+    emptyTitle: "لا توجد أحزاب بعد", emptyBody: "أضف الأحزاب التي حفظتها. ستظهر هنا وفي كل مراجعة.",
+    tapToStart: "اضغط للتقييم", lower: "خفض التقييم",
+    note: "يعرض كل حزب تقييمه وصفحاته الضعيفة من آخر مراجعة (م٢ تعني المراجعة ٢). للتعديل افتح تبويب مراجعة، واضغط على الحزب لرفع تقييمه واكتب صفحاته الضعيفة تحته.",
+    notRated: "غير مقيَّم", notRatedAny: "غير مقيَّم في أي مراجعة", latestIn: "آخر تقييم: ",
+    c0: "ضعيف", c1: "جيد", c2: "جيد جدًا", c3: "ممتاز",
+    h0: "يحتاج إعادة حفظ", h1: "بعض الأخطاء", h2: "تردد قليل", h3: "متقن وسلس",
+    weakPages: "الصفحات الضعيفة", weakPh: "مثال: ٥، ٧، ١٢-١٤", language: "English", style: "النمط", s_classic: "كلاسيكي", s_minimal: "بسيط", s_soft: "ناعم", s_blocks: "ألوان",
+    preview: "تُحفظ تقييماتك على هذا الجهاز فقط."
+  };
+  var STARTS = ["1:1","2:142","2:253","3:93","4:24","4:148","5:82","6:111","7:88","8:41","9:93","11:6","12:53","15:1","17:1","18:75","21:1","23:1","25:21","27:56","29:46","33:31","36:28","39:32","41:47","46:1","51:31","58:1","67:1","78:1"];
+  var KEY = "hifz-preview-v2";
+  var st = { lang: "en", rounds: 1, tracked: [], level: {}, stamp: {}, weak: {}, skin: "classic" };
+  var SK = ["classic", "minimal", "soft", "blocks"];
+  var LX = ["#ffffff", "#1b0f00", "#1b1600", "#ffffff"];
+  var tab = -1, delArmed = false, sheetOpen = false;
+
+  try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); st = { lang: o.lang === "ar" ? "ar" : "en", rounds: Math.max(1, Math.min(60, o.rounds | 0 || 1)), tracked: (o.tracked || []).filter(function (h) { return h >= 1 && h <= 60; }), level: o.level || {}, stamp: o.stamp || {}, weak: o.weak || {}, skin: o.skin || "classic" }; } } catch (e) {}
+  (function () { Object.keys(st.weak).forEach(function (k) { if (k.indexOf(":") < 0) { st.weak["1:" + k] = st.weak[k]; delete st.weak[k]; } }); })();
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+
+  var ar = function () { return st.lang === "ar"; };
+  var T = function (k) { return (ar() ? AR : EN)[k] || k; };
+  var dg = function (x) { x = String(x); return ar() ? x.replace(/\d/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }) : x; };
+  var juzOf = function (h) { return (h + 1) >> 1; };
+  var hizbN = function (h) { return ar() ? "الحزب " + dg(h) : "Hizb " + h; };
+  var juzN = function (j) { return ar() ? "الجزء " + dg(j) : "Juz " + j; };
+  var roundN = function (r) { return ar() ? "المراجعة " + dg(r) : "Round " + r; };
+  var startsN = function (j) { return (ar() ? "يبدأ " : "Starts ") + dg(STARTS[j - 1]); };
+  var key = function (t, h) { return t + ":" + h; };
+  var lv = function (t, h) { var v = st.level[key(t, h)]; return v === undefined ? null : v; };
+  function latestRound(h) { for (var t = st.rounds; t >= 1; t--) { if (lv(t, h) !== null) return t; } return null; }
+  function latest(h) { var t = latestRound(h); return t === null ? null : lv(t, h); }
+  var wk = function (t, h) { return st.weak[key(t, h)] || ""; };
+  function latestActive(h) { for (var t = st.rounds; t >= 1; t--) { if (lv(t, h) !== null || wk(t, h)) return t; } return null; }
+  var tracked = function () { return st.tracked.slice().sort(function (a, b) { return a - b; }); };
+  var isT = function (h) { return st.tracked.indexOf(h) >= 0; };
+
+  function raise(t, h) {
+    var k = key(t, h), l = lv(t, h);
+    if (l !== null && l >= 3) { delete st.level[k]; delete st.stamp[k]; }
+    else { st.level[k] = l === null ? 0 : l + 1; st.stamp[k] = Date.now(); }
+    save(); render();
+  }
+  function lower(t, h) {
+    var k = key(t, h), l = lv(t, h); if (l === null) return;
+    if (l === 0) { delete st.level[k]; delete st.stamp[k]; } else { st.level[k] = l - 1; st.stamp[k] = Date.now(); }
+    save(); render();
+  }
+  function toggleHizb(h) { var i = st.tracked.indexOf(h); if (i >= 0) st.tracked.splice(i, 1); else st.tracked.push(h); save(); render(); }
+  function setJuz(j, on) { [2 * j - 1, 2 * j].forEach(function (h) { var i = st.tracked.indexOf(h); if (on && i < 0) st.tracked.push(h); if (!on && i >= 0) st.tracked.splice(i, 1); }); save(); render(); }
+
+  function $(s) { return document.querySelector(s); }
+  function e(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function fmtDate(ts) { try { return dg(new Date(ts).toLocaleDateString(ar() ? "ar" : undefined, { day: "numeric", month: "short" })); } catch (x) { return ""; } }
+
+  function meter(l) {
+    var m = e("span", "meter");
+    for (var i = 0; i < 4; i++) { var b = e("i"); if (l !== null && i <= l) b.style.background = "var(--c" + l + ")"; m.appendChild(b); }
+    return m;
+  }
+
+  function renderTabs() {
+    var nav = $("#tabs"); nav.textContent = "";
+    function mk(label, idx) { var b = e("button", "chip", label); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(tab === idx)); b.onclick = function () { tab = idx; delArmed = false; render(); }; nav.appendChild(b); }
+    mk(T("overview"), -1);
+    for (var r = 1; r <= st.rounds; r++) mk(roundN(r), r);
+    var a = e("button", "chip add", "+ " + T("addRound")); a.type = "button";
+    a.onclick = function () { if (st.rounds < 60) st.rounds++; tab = st.rounds; save(); render(); };
+    nav.appendChild(a);
+  }
+
+  function empty(main) {
+    var d = e("div", "empty card");
+    d.appendChild(e("h2", null, T("emptyTitle"))); d.appendChild(e("p", null, T("emptyBody")));
+    var b = e("button", "btn filled", "+ " + T("addHizb")); b.type = "button"; b.onclick = openSheet; d.appendChild(b);
+    main.appendChild(d);
+  }
+
+  function dotLabel(l) {
+    var s = e("span", "pill"); var d = e("i", "dot"); d.style.background = l === null ? "var(--line)" : "var(--c" + l + ")";
+    s.appendChild(d); s.appendChild(document.createTextNode(l === null ? T("notRated") : T("c" + l))); return s;
+  }
+
+  function overview(main) {
+    if (!st.tracked.length) return empty(main);
+    var counts = [0, 0, 0, 0, 0];
+    st.tracked.forEach(function (h) { var l = latest(h); counts[l === null ? 4 : l]++; });
+    var stats = e("div", "stats5");
+    [3, 2, 1, 0].forEach(function (i) {
+      var c = e("div", "card stat"); var bar = e("i"); bar.style.background = i === 4 ? "var(--line)" : "var(--c" + i + ")"; c.appendChild(bar);
+      c.appendChild(e("b", null, dg(counts[i]))); c.appendChild(e("small", null, i === 4 ? T("notRated") : T("c" + i))); stats.appendChild(c);
+    });
+    main.appendChild(stats);
+
+    var grid = e("div", "grid");
+    var juzs = []; tracked().forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
+    juzs.forEach(function (j) {
+      var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g);
+      tracked().filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(hizbCard(h)); });
+    });
+    main.appendChild(grid);
+    main.appendChild(e("p", "note", T("note")));
+  }
+
+  function hizbCard(h) {
+    var l = latest(h), lr = latestRound(h), card = e("div", "tile");
+    if (l !== null) { card.style.background = "var(--t" + l + ")"; card.style.borderColor = "var(--c" + l + ")"; }
+    card.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
+    card.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
+    var top = e("div", "tile-top"); top.appendChild(e("b", null, hizbN(h)));
+    var p = e("span", "pips"); for (var r = 1; r <= st.rounds; r++) p.appendChild(e("i", "pip" + (lv(r, h) !== null ? " on" : ""))); top.appendChild(p);
+    card.appendChild(top);
+    var stl = e("div", "tile-st"); var d = e("i", "dot"); d.style.background = l === null ? "var(--line)" : "var(--c" + l + ")";
+    stl.appendChild(d); stl.appendChild(e("span", null, l === null ? T("notRated") : T("c" + l)));
+    if (lr !== null) stl.appendChild(e("small", null, (ar() ? "م" + dg(lr) : "R" + lr)));
+    card.appendChild(stl);
+    var la = latestActive(h), w = la === null ? "" : wk(la, h);
+    var wl = e("div", "wline" + (w ? " has" : "")); wl.appendChild(e("span", "wk", T("weakPages") + ":")); wl.appendChild(e("span", "wv", w || "\u2014"));
+    card.appendChild(wl);
+    return card;
+  }
+
+  function deleteRound(n) {
+    var lvl = {}, stp = {};
+    Object.keys(st.level).forEach(function (k) {
+      var i = k.indexOf(":"), t = +k.slice(0, i), h = k.slice(i + 1);
+      if (t === n) return;
+      var nk = (t > n ? t - 1 : t) + ":" + h;
+      lvl[nk] = st.level[k]; if (st.stamp[k] !== undefined) stp[nk] = st.stamp[k];
+    });
+    var wkm = {};
+    Object.keys(st.weak).forEach(function (k) { var i = k.indexOf(":"), t = +k.slice(0, i), h = k.slice(i + 1); if (t === n) return; wkm[(t > n ? t - 1 : t) + ":" + h] = st.weak[k]; });
+    st.weak = wkm; st.level = lvl; st.stamp = stp; st.rounds--;
+    tab = Math.min(n, st.rounds); delArmed = false; save(); render();
+  }
+
+  function tabView(main) {
+    if (!st.tracked.length) return empty(main);
+    var hz = tracked(), counts = [0, 0, 0, 0];
+    hz.forEach(function (h) { var l = lv(tab, h); if (l !== null) counts[l]++; });
+    var rated = counts.reduce(function (a, b) { return a + b; }, 0);
+    var card = e("div", "card pad"), top = e("div", "prog-top");
+    var nm = e("span", "prog-name"); nm.appendChild(document.createTextNode(roundN(tab)));
+    if (st.rounds > 1 && !delArmed) {
+      var rb = e("button", "btn text small", T("removeRound")); rb.type = "button"; rb.onclick = function () { delArmed = true; render(); }; nm.appendChild(rb);
+    }
+    top.appendChild(nm);
+    top.appendChild(e("span", null, ar() ? dg(rated) + " من " + dg(hz.length) + " مقيَّم" : rated + " of " + hz.length + " rated"));
+    card.appendChild(top);
+    var bar = e("div", "meterbar");
+    for (var i = 3; i >= 0; i--) if (counts[i]) { var seg = e("i"); seg.style.width = (counts[i] / hz.length * 100) + "%"; seg.style.background = "var(--c" + i + ")"; bar.appendChild(seg); }
+    card.appendChild(bar);
+    if (st.rounds > 1 && delArmed) {
+      var c = e("div", "confirm"); c.appendChild(e("span", null, T("deleteRoundQ")));
+      var acts = e("div", "acts");
+      var n = e("button", "btn text", T("cancel")); n.type = "button"; n.onclick = function () { delArmed = false; render(); };
+      var y = e("button", "btn text", T("del")); y.type = "button"; y.style.color = "var(--err)"; var cur = tab; y.onclick = function () { deleteRound(cur); };
+      acts.appendChild(n); acts.appendChild(y); c.appendChild(acts); card.appendChild(c);
+    }
+    main.appendChild(card);
+    var grid = e("div", "grid");
+    var juzs = []; hz.forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
+    juzs.forEach(function (j) {
+      var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g);
+      hz.filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(row(h)); });
+    });
+    main.appendChild(grid);
+  }
+
+  function row(h) {
+    var cell = e("div", "rcell");
+    var l = lv(tab, h), r = e("div", "row");
+    r.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
+    r.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
+    if (l !== null) { r.style.background = "var(--t" + l + ")"; r.style.borderColor = "var(--c" + l + ")"; }
+    var m = e("button", "main"); m.type = "button"; m.onclick = function () { raise(tab, h); };
+    m.appendChild(meter(l));
+    var lab = e("span", "lab"); lab.appendChild(e("b", null, hizbN(h)));
+    lab.appendChild(e("small", null, l === null ? T("tapToStart") : T("c" + l)));
+    m.appendChild(lab); r.appendChild(m);
+    if (l !== null) { var mn = e("button", "minus", "−"); mn.type = "button"; mn.title = T("lower"); mn.setAttribute("aria-label", T("lower")); mn.onclick = function () { lower(tab, h); }; r.appendChild(mn); }
+    cell.appendChild(r);
+    var t = tab, k = key(t, h), inp = e("input");
+    inp.type = "text"; inp.id = "rw-" + t + "-" + h; inp.placeholder = T("weakPages"); inp.value = st.weak[k] || ""; inp.setAttribute("autocomplete", "off");
+    inp.setAttribute("aria-label", T("weakPages") + " — " + hizbN(h) + ", " + roundN(t));
+    if (inp.value) inp.className = "has";
+    inp.addEventListener("input", function () { var v = inp.value; if (v.trim()) st.weak[k] = v; else delete st.weak[k]; inp.className = v.trim() ? "has" : ""; save(); });
+    cell.appendChild(inp);
+    return cell;
+  }
+
+  function openSheet() { sheetOpen = true; render(); }
+  function renderSheet() {
+    var scrim = $("#scrim"); scrim.hidden = !sheetOpen; var sh = $("#sheet"); sh.textContent = "";
+    if (!sheetOpen) return;
+    sh.appendChild(e("h2", null, T("addTitle")));
+    var list = e("div", "list");
+    for (var j = 1; j <= 30; j++) (function (j) {
+      var a = 2 * j - 1, b = 2 * j, both = isT(a) && isT(b);
+      var it = e("div", "item"), hd = e("div", "item-h");
+      hd.appendChild(e("b", null, juzN(j)));
+      var tb = e("button", "btn text", both ? T("removeBoth") : T("addBoth")); tb.type = "button"; tb.onclick = function () { setJuz(j, !both); }; hd.appendChild(tb);
+      it.appendChild(hd);
+      var w = e("div", "wrapchips");
+      [a, b].forEach(function (h) { var c = e("button", "fchip", hizbN(h)); c.type = "button"; c.setAttribute("aria-pressed", String(isT(h))); c.onclick = function () { toggleHizb(h); }; w.appendChild(c); });
+      it.appendChild(w); list.appendChild(it);
+    })(j);
+    sh.appendChild(list);
+    var ft = e("div", "foot"), dn = e("button", "btn filled", T("done")); dn.type = "button"; dn.onclick = function () { sheetOpen = false; render(); }; ft.appendChild(dn); sh.appendChild(ft);
+  }
+  $("#scrim").addEventListener("click", function (ev) { if (ev.target === this) { sheetOpen = false; render(); } });
+  $("#lang").onclick = function () { st.lang = ar() ? "en" : "ar"; save(); render(); };
+  $("#fab").onclick = openSheet;
+  $("#skin").onchange = function () { st.skin = this.value; save(); render(); };
+
+  function render() {
+    if (tab > st.rounds || tab === 0) tab = tab === 0 ? -1 : st.rounds;
+    document.documentElement.lang = st.lang; document.documentElement.dir = ar() ? "rtl" : "ltr";
+    $("#ttl").textContent = T("appTitle"); $("#lang").textContent = T("language"); $("#pn").textContent = T("preview");
+    if (SK.indexOf(st.skin) < 0) st.skin = "classic";
+    if (st.skin === "classic") document.documentElement.removeAttribute("data-skin"); else document.documentElement.setAttribute("data-skin", st.skin);
+    var sel = $("#skin"); sel.textContent = ""; sel.setAttribute("aria-label", T("style"));
+    SK.forEach(function (k) { var o = e("option", null, T("s_" + k)); o.value = k; sel.appendChild(o); }); sel.value = st.skin;
+    renderTabs();
+    var main = $("#main"); main.textContent = "";
+    if (tab === -1) overview(main); else tabView(main);
+    var fab = $("#fab"); fab.hidden = tab !== -1; fab.textContent = "+ " + T("addHizb");
+    renderSheet();
+  }
+  render();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); }); }
+if (navigator.storage && navigator.storage.persist) { try { navigator.storage.persist(); } catch (e) {} }
+</script>
+</body>
+</html>
