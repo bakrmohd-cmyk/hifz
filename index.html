@@ -465,7 +465,7 @@ main { gap: 8px; padding-top: 2px; }
 
   function openSheet() { sheetOpen = true; render(); }
   function renderSheet() {
-    var scrim = $("#scrim"); scrim.hidden = !sheetOpen; var sh = $("#sheet"); sh.textContent = "";
+    var scrim = $("#scrim"); scrim.hidden = !sheetOpen; var sh = $("#sheet"); var oldList = sh.querySelector(".list"); var keepTop = oldList ? oldList.scrollTop : 0; sh.textContent = "";
     if (!sheetOpen) return;
     sh.appendChild(e("h2", null, T("addTitle")));
     var list = e("div", "list");
@@ -479,7 +479,7 @@ main { gap: 8px; padding-top: 2px; }
       [a, b].forEach(function (h) { var c = e("button", "fchip", hizbN(h)); c.type = "button"; c.setAttribute("aria-pressed", String(isT(h))); c.onclick = function () { toggleHizb(h); }; w.appendChild(c); });
       it.appendChild(w); list.appendChild(it);
     })(j);
-    sh.appendChild(list);
+    sh.appendChild(list); list.scrollTop = keepTop;
     var ft = e("div", "foot"), dn = e("button", "btn filled", T("done")); dn.type = "button"; dn.onclick = function () { sheetOpen = false; render(); }; ft.appendChild(dn); sh.appendChild(ft);
   }
   $("#scrim").addEventListener("click", function (ev) { if (ev.target === this) { sheetOpen = false; render(); } });
