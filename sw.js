@@ -1,5 +1,5 @@
 // Offline cache. Change the version number when you update the app so phones fetch the new files.
-const CACHE = "hifz-v2";
+const CACHE = "hifz-v3";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
