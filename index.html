@@ -292,6 +292,40 @@ main { gap: 8px; padding-top: 2px; }
 :root[data-skin="glass"] .tile, :root[data-skin="glass"] .row { border-color: rgba(255,255,255,.85) !important; }
 :root[data-skin="glass"] .sheet { background: rgba(255,255,255,.9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 :root[data-skin="glass"] .chip[aria-selected="true"], :root[data-skin="glass"] .fab, :root[data-skin="glass"] .btn.filled { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+/* ---------- v3: revisions ---------- */
+.tabs .chip.wide { grid-column: span 2; }
+.pct { font-weight: 800; font-size: calc(17px * var(--fs, 1)); line-height: 1.1; }
+.ago { display: inline-flex; align-items: center; gap: 5px; font-size: calc(12px * var(--fs, 1)); color: var(--muted); }
+.ago svg { flex: none; }
+.ago.late { font-weight: 800; color: var(--fg); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+:root[data-skin="blocks"] .tile .ago, :root[data-skin="blocks"] .tile .ago.late { color: inherit; }
+.dateRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: space-between; }
+.dateRow label { font-weight: 700; }
+.dateRow .dwrap { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.dateRow input { font: inherit; padding: 8px 10px; border-radius: var(--r2, 8px); border: 1px solid var(--line); background: var(--surface); color: var(--fg); min-height: 40px; }
+.dayh { font-weight: 700; padding: 10px 2px 2px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.dayh small { color: var(--muted); font-weight: 500; font-size: calc(12px * var(--fs, 1)); }
+.lrow { display: flex; align-items: center; gap: 10px; width: 100%; text-align: start; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; cursor: pointer; min-height: 48px; }
+.lrow .lpct { flex: none; min-width: 54px; text-align: center; font-weight: 800; padding: 4px 8px; border-radius: 8px; font-size: calc(13px * var(--fs, 1)); }
+.lrow .ltx { flex: 1; min-width: 0; }
+.lrow .ltx b { display: block; font-weight: 600; }
+.lrow .ltx small { display: block; color: var(--muted); overflow-wrap: anywhere; font-size: calc(12px * var(--fs, 1)); }
+.rcell input:disabled { opacity: .5; cursor: not-allowed; }
+:root[data-skin] .lrow, :root[data-skin] .dateRow input { border-radius: var(--r2); }
+:root[data-skin="soft"] .lrow { border-color: transparent; box-shadow: 0 2px 8px rgba(44,60,110,.10); }
+:root[data-skin="minimal"] .lrow { border-inline-start: 5px solid var(--line); }
+.logrow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.logrow .chip { width: auto; min-height: 34px; padding: 4px 12px; }
+.lgchip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.lgadd { color: var(--accent); border-style: dashed; font-weight: 700; }
+.lpills { display: flex; flex-wrap: wrap; gap: 4px; flex: none; max-width: 45%; }
+.lvgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
+.lvbtn { font: inherit; font-weight: 800; min-height: 52px; border-radius: 10px; border: 3px solid transparent; background: var(--lc); color: var(--lx); cursor: pointer; opacity: .55; font-size: calc(14px * var(--fs, 1)); }
+.lvbtn[aria-pressed="true"] { opacity: 1; border-color: var(--fg); }
+.btn:disabled { opacity: .45; cursor: default; }
+.lrow.static { cursor: default; }
+.lrow.static .minus { margin-inline: auto 0; }
+.sheet .foot { display: flex; gap: 8px; } .sheet .foot .btn.filled { flex: 1; }
 </style>
 </head>
 <body>
@@ -309,68 +343,104 @@ main { gap: 8px; padding-top: 2px; }
 <script>
 (function () {
   var EN = {
-    appTitle: "Hifz Revision Log", overview: "Overview", addRound: "Round", addHizb: "Add memorised",
+    appTitle: "Hifz Revision Log", overview: "Overview", addRev: "Add a revision", history: "History", addHizb: "Add memorised",
     addTitle: "Choose the hizbs you have memorised", addBoth: "Add both", removeBoth: "Remove both", done: "Done", cancel: "Cancel", del: "Delete",
-    deleteRound: "Delete this round", deleteRoundQ: "Delete this round and all its ratings?", removeRound: "Remove round",
-    emptyTitle: "No hizbs yet", emptyBody: "Add the hizbs you have memorised. They appear here and in every round.",
-    tapToStart: "Tap to rate", lower: "Lower rating",
-    note: "Each hizb shows its rating and weak pages from the latest round (R2 means Round 2). To change them, open a round tab, tap a hizb to raise its rating and type its weak pages below it.",
-    notRated: "Not rated", notRatedAny: "Not rated in any round", latestIn: "Latest: ",
-    c0: "Weak", c1: "Good", c2: "Very good", c3: "Excellent",
-    h0: "Needs relearning", h1: "Some slips", h2: "A few hesitations", h3: "Strong and fluent",
-    weakPages: "Weak pages", weakPh: "e.g. 5, 7, 12-14", language: "العربية", style: "Style", s_classic: "Classic", s_minimal: "Minimal", s_soft: "Soft", s_blocks: "Blocks",
+    emptyTitle: "No hizbs yet", emptyBody: "Add the hizbs you have memorised, then mark what you revise each day.",
+    tapToMark: "Tap to mark", lower: "Lower", weakPages: "Weak pages",
+    notRevised: "Not revised yet", today: "Today", yesterday: "Yesterday", revDay: "Revision day", addRevBtn: "Add revision", chooseLvl: "How well did you revise it?", loggedDay: "Logged this day", noneDay: "Nothing logged for this day yet.", delQ: "Delete?",
+    noteOv: "Each box shows the average of that hizb's last 3 revisions and how long ago you last revised it. Log your revisions in Add a revision.",
+     noteAdd: "Tap a hizb, choose how well you revised it and add it. Every time you add, it is saved as a new revision, so you can add the same hizb more than once a day.",
+    logEmpty: "No revisions logged yet. Use Add a revision to log your first one.", logTap: "Tap a line to open that day and edit it.",
+    demoSeed: "Load sample data (demo only)",
     preview: "Your marks are saved on this device only.",
     profiles: "Who is using the app?", addPerson: "Add a person", namePh: "Name", edit: "Edit", save: "Save",
     deletePersonQ: "Delete this person and all their marks?", me: "Me", person: "Person",
     settings: "Settings", langT: "Language", textSize: "Text size", size0: "Normal", size1: "Large", size2: "Extra large",
-    s_emerald: "Emerald", s_glass: "Glass"
+    style: "Style", s_classic: "Classic", s_minimal: "Minimal", s_soft: "Soft", s_blocks: "Blocks", s_emerald: "Emerald", s_glass: "Glass"
   };
   var AR = {
-    appTitle: "سجل مراجعة الحفظ", overview: "نظرة عامة", addRound: "مراجعة", addHizb: "إضافة محفوظ",
+    appTitle: "سجل مراجعة الحفظ", overview: "نظرة عامة", addRev: "تسجيل مراجعة", history: "السجل", addHizb: "إضافة محفوظ",
     addTitle: "اختر الأحزاب التي حفظتها", addBoth: "إضافة الحزبين", removeBoth: "إزالة الحزبين", done: "تم", cancel: "إلغاء", del: "حذف",
-    deleteRound: "حذف هذه المراجعة", deleteRoundQ: "هل تريد حذف هذه المراجعة وكل تقييماتها؟", removeRound: "حذف المراجعة",
-    emptyTitle: "لا توجد أحزاب بعد", emptyBody: "أضف الأحزاب التي حفظتها. ستظهر هنا وفي كل مراجعة.",
-    tapToStart: "اضغط للتقييم", lower: "خفض التقييم",
-    note: "يعرض كل حزب تقييمه وصفحاته الضعيفة من آخر مراجعة (م٢ تعني المراجعة ٢). للتعديل افتح تبويب مراجعة، واضغط على الحزب لرفع تقييمه واكتب صفحاته الضعيفة تحته.",
-    notRated: "غير مقيَّم", notRatedAny: "غير مقيَّم في أي مراجعة", latestIn: "آخر تقييم: ",
-    c0: "ضعيف", c1: "جيد", c2: "جيد جدًا", c3: "ممتاز",
-    h0: "يحتاج إعادة حفظ", h1: "بعض الأخطاء", h2: "تردد قليل", h3: "متقن وسلس",
-    weakPages: "الصفحات الضعيفة", weakPh: "مثال: ٥، ٧، ١٢-١٤", language: "English", style: "النمط", s_classic: "كلاسيكي", s_minimal: "بسيط", s_soft: "ناعم", s_blocks: "ألوان",
+    emptyTitle: "لا توجد أحزاب بعد", emptyBody: "أضف الأحزاب التي حفظتها، ثم سجّل ما تراجعه كل يوم.",
+    tapToMark: "اضغط للتقييم", lower: "خفض", weakPages: "الصفحات الضعيفة",
+    notRevised: "لم تُراجع بعد", today: "اليوم", yesterday: "أمس", revDay: "يوم المراجعة", addRevBtn: "إضافة المراجعة", chooseLvl: "كيف كانت مراجعتك؟", loggedDay: "المسجَّل في هذا اليوم", noneDay: "لم تُسجَّل أي مراجعة في هذا اليوم بعد.", delQ: "حذف؟",
+    noteOv: "يعرض كل مربع متوسط آخر ٣ مراجعات لذلك الحزب، وكم مضى على آخر مراجعة. سجّل مراجعاتك من تبويب تسجيل مراجعة.",
+     noteAdd: "اضغط على الحزب، واختر مستوى مراجعتك، ثم أضِفها. كل إضافة تُحفظ كمراجعة جديدة، فيمكنك إضافة الحزب نفسه أكثر من مرة في اليوم.",
+    logEmpty: "لا توجد مراجعات مسجلة بعد. استخدم تسجيل مراجعة لتسجيل أول مراجعة.", logTap: "اضغط على أي سطر لفتح ذلك اليوم وتعديله.",
+    demoSeed: "تحميل بيانات تجريبية (للعرض فقط)",
     preview: "تُحفظ تقييماتك على هذا الجهاز فقط.",
     profiles: "من يستخدم التطبيق؟", addPerson: "إضافة شخص", namePh: "الاسم", edit: "تعديل", save: "حفظ",
     deletePersonQ: "هل تريد حذف هذا الشخص وكل تقييماته؟", me: "أنا", person: "شخص",
     settings: "الإعدادات", langT: "اللغة", textSize: "حجم الخط", size0: "عادي", size1: "كبير", size2: "كبير جدًا",
-    s_emerald: "زمردي", s_glass: "زجاجي"
+    style: "النمط", s_classic: "كلاسيكي", s_minimal: "بسيط", s_soft: "ناعم", s_blocks: "ألوان", s_emerald: "زمردي", s_glass: "زجاجي"
   };
   var STARTS = ["1:1","2:142","2:253","3:93","4:24","4:148","5:82","6:111","7:88","8:41","9:93","11:6","12:53","15:1","17:1","18:75","21:1","23:1","25:21","27:56","29:46","33:31","36:28","39:32","41:47","46:1","51:31","58:1","67:1","78:1"];
-  var KEY = "hifz-v3", KEY_OLD = "hifz-preview-v2";
+  var KEY = "hifz-v3", KEY_OLD = "hifz-preview-v2", KEY_BAK = "hifz-v3-before-revisions";
+  var DEMO = false;
   var SK = ["classic", "minimal", "soft", "blocks", "emerald", "glass"];
   var LX = ["#ffffff", "#1b0f00", "#1b1600", "#ffffff"];
   var AVC = ["#2c4691", "#2f9455", "#d9731a", "#8a4fbf", "#c93a47", "#0f8b8d"];
   var db = null, st = null;
-  var tab = -1, delArmed = false, sheetMode = null, editingId = null, delPersonArmed = false;
+  var tab = "ov", addDay = null, revH = null, revL = null, revW = "", delK = null, sheetMode = null, editingId = null, delPersonArmed = false, delArmed = false;
 
   function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  function blank(name) { return { id: uid(), name: name || "", lang: "ar", skin: "classic", size: 0, rounds: 1, tracked: [], level: {}, stamp: {}, weak: {} }; }
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function dayKey(ts) { var d = new Date(ts); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function todayKey() { return dayKey(Date.now()); }
+  function dayNum(k) { var q = k.split("-"); return Date.UTC(+q[0], +q[1] - 1, +q[2]) / 86400000; }
+  function daysAgo(k) { return Math.max(0, Math.round(dayNum(todayKey()) - dayNum(k))); }
+
+  function blank(name) { return { id: uid(), name: name || "", lang: "ar", skin: "classic", size: 0, tracked: [], rev: {} }; }
+  function cleanRev(r) {
+    var out = {};
+    Object.keys(r || {}).forEach(function (k) {
+      var m = /^(\d{4}-\d{2}-\d{2})(?:#(\d{1,2}))?:(\d+)$/.exec(k), v = r[k];
+      if (!m || !v || typeof v !== "object" || typeof v.l !== "number") return;
+      var h = +m[3], l = v.l | 0;
+      if (h < 1 || h > 60 || l < 0 || l > 3) return;
+      out[k] = { l: l, w: typeof v.w === "string" ? v.w.slice(0, 200) : "", t: +v.t || 0 };
+    });
+    return out;
+  }
+  // Older versions kept ratings per "round". Each rating becomes one revision entry on the day it was made.
+  function legacyToRev(o) {
+    var level = (o.level && typeof o.level === "object") ? o.level : {}, stamp = o.stamp || {}, weak = o.weak || {}, rev = {}, items = [], maxT = 1;
+    Object.keys(level).forEach(function (k) {
+      var i = k.indexOf(":"), t = +k.slice(0, i), h = +k.slice(i + 1);
+      if (!(t >= 1) || !(h >= 1 && h <= 60) || typeof level[k] !== "number") return;
+      items.push({ k: k, t: t, h: h }); if (t > maxT) maxT = t;
+    });
+    items.sort(function (a, b) { return a.t - b.t; });
+    items.forEach(function (x) {
+      var ts = stamp[x.k] || (Date.now() - (maxT - x.t) * 86400000);
+      var w = typeof weak[x.k] === "string" ? weak[x.k] : ((x.t === 1 && typeof weak[x.h] === "string") ? weak[x.h] : "");
+      rev[dayKey(ts) + ":" + x.h] = { l: Math.max(0, Math.min(3, level[x.k] | 0)), w: w.slice(0, 200), t: ts };
+    });
+    return rev;
+  }
   function clean(o) {
     o = (o && typeof o === "object") ? o : {};
-    var p = {
+    return {
       id: (typeof o.id === "string" && o.id) ? o.id : uid(),
       name: String(o.name || "").slice(0, 24),
       lang: o.lang === "en" ? "en" : "ar",
       skin: SK.indexOf(o.skin) >= 0 ? o.skin : "classic",
       size: (o.size === 1 || o.size === 2) ? o.size : 0,
-      rounds: Math.max(1, Math.min(60, (o.rounds | 0) || 1)),
       tracked: (Array.isArray(o.tracked) ? o.tracked : []).filter(function (h) { return h >= 1 && h <= 60; }),
-      level: (o.level && typeof o.level === "object") ? o.level : {},
-      stamp: (o.stamp && typeof o.stamp === "object") ? o.stamp : {},
-      weak: (o.weak && typeof o.weak === "object") ? o.weak : {}
+      rev: (o.rev && typeof o.rev === "object") ? cleanRev(o.rev) : legacyToRev(o)
     };
-    Object.keys(p.weak).forEach(function (k) { if (k.indexOf(":") < 0) { p.weak["1:" + k] = p.weak[k]; delete p.weak[k]; } });
-    return p;
   }
-  // Load. Older single-user data is moved into the first profile and the old copy is left untouched.
-  try { var raw = localStorage.getItem(KEY); if (raw) { var d = JSON.parse(raw); if (d && Array.isArray(d.profiles)) db = { active: d.active, profiles: d.profiles.map(clean) }; } } catch (e) {}
+  // Load. A copy of the older round-based data is kept under another key before it is converted.
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var d = JSON.parse(raw);
+      if (d && Array.isArray(d.profiles)) {
+        db = { active: d.active, profiles: d.profiles.map(clean) };
+        if (/"level"\s*:/.test(raw) && !/"rev"\s*:/.test(raw) && !localStorage.getItem(KEY_BAK)) localStorage.setItem(KEY_BAK, raw);
+      }
+    }
+  } catch (e) {}
   if (!db || !db.profiles.length) {
     var first = null;
     try { var old = localStorage.getItem(KEY_OLD); if (old) first = clean(JSON.parse(old)); } catch (e) {}
@@ -384,31 +454,49 @@ main { gap: 8px; padding-top: 2px; }
   var ar = function () { return st.lang === "ar"; };
   var T = function (k) { return (ar() ? AR : EN)[k] || k; };
   var dg = function (x) { x = String(x); return ar() ? x.replace(/\d/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }) : x; };
+  var pct = function (v) { return dg(v) + (ar() ? "٪" : "%"); };
+  var lvPct = function (l) { return pct((l + 1) * 25); };
   var juzOf = function (h) { return (h + 1) >> 1; };
   var hizbN = function (h) { return ar() ? "الحزب " + dg(h) : "Hizb " + h; };
   var juzN = function (j) { return ar() ? "الجزء " + dg(j) : "Juz " + j; };
-  var roundN = function (r) { return ar() ? "المراجعة " + dg(r) : "Round " + r; };
-  var startsN = function (j) { return (ar() ? "يبدأ " : "Starts ") + dg(STARTS[j - 1]); };
-  var key = function (t, h) { return t + ":" + h; };
-  var lv = function (t, h) { var v = st.level[key(t, h)]; return v === undefined ? null : v; };
-  function latestRound(h) { for (var t = st.rounds; t >= 1; t--) { if (lv(t, h) !== null) return t; } return null; }
-  function latest(h) { var t = latestRound(h); return t === null ? null : lv(t, h); }
-  var wk = function (t, h) { return st.weak[key(t, h)] || ""; };
-  function latestActive(h) { for (var t = st.rounds; t >= 1; t--) { if (lv(t, h) !== null || wk(t, h)) return t; } return null; }
+  var ek = function (day, h, n) { return (n > 1 ? day + "#" + n : day) + ":" + h; };
+  var getE = function (day, h, n) { return st.rev[ek(day, h, n || 1)] || null; };
+  function parseK(k) { var i = k.lastIndexOf(":"), a = k.slice(0, i).split("#"); return { day: a[0], n: +a[1] || 1, h: +k.slice(i + 1) }; }
+  function logsOn(day) { var m = 1; Object.keys(st.rev).forEach(function (k) { var q = parseK(k); if (q.day === day && q.n > m) m = q.n; }); return m; }
   var tracked = function () { return st.tracked.slice().sort(function (a, b) { return a - b; }); };
   var isT = function (h) { return st.tracked.indexOf(h) >= 0; };
+  function cnt(n) { return dg(n) + " " + (ar() ? (n === 1 ? "حزب" : n === 2 ? "حزبان" : n <= 10 ? "أحزاب" : "حزبًا") : (n === 1 ? "hizb" : "hizbs")); }
+  function agoText(n) {
+    if (n === 0) return T("today"); if (n === 1) return T("yesterday");
+    if (!ar()) return n + " days ago";
+    return n === 2 ? "منذ يومين" : n <= 10 ? "منذ " + dg(n) + " أيام" : "منذ " + dg(n) + " يومًا";
+  }
+  // Every revision entry of each hizb, newest day first.
+  function byHizb() {
+    var idx = {};
+    Object.keys(st.rev).forEach(function (k) {
+      var q = parseK(k), h = q.h, en = st.rev[k];
+      (idx[h] = idx[h] || []).push({ day: q.day, n: q.n, l: en.l, w: en.w || "", t: en.t || 0 });
+    });
+    Object.keys(idx).forEach(function (h) { idx[h].sort(function (a, b) { return a.day < b.day ? 1 : a.day > b.day ? -1 : b.n !== a.n ? b.n - a.n : b.t - a.t; }); });
+    return idx;
+  }
+  // Average of the last 3 revisions, the days since the newest one, and its weak pages.
+  function statsFor(list) {
+    if (!list || !list.length) return null;
+    var top = list.slice(0, 3), sum = 0;
+    top.forEach(function (x) { sum += (x.l + 1) * 25; });
+    var avg = sum / top.length;
+    return { avg: Math.round(avg), bucket: avg < 37.5 ? 0 : avg < 62.5 ? 1 : avg < 87.5 ? 2 : 3, n: top.length, days: daysAgo(list[0].day), weak: list[0].w };
+  }
 
-  function raise(t, h) {
-    var k = key(t, h), l = lv(t, h);
-    if (l !== null && l >= 3) { delete st.level[k]; delete st.stamp[k]; }
-    else { st.level[k] = l === null ? 0 : l + 1; st.stamp[k] = Date.now(); }
-    save(); render();
+  function nextN(day, h) { var m = 0; Object.keys(st.rev).forEach(function (k) { var q = parseK(k); if (q.day === day && q.h === h && q.n > m) m = q.n; }); return m + 1; }
+  function addEntry(day, h, l, w) { st.rev[ek(day, h, nextN(day, h))] = { l: l, w: w, t: Date.now() }; save(); }
+  function dayEntries(day) {
+    var out = []; Object.keys(st.rev).forEach(function (k) { var q = parseK(k); if (q.day === day) out.push({ k: k, h: q.h, n: q.n, l: st.rev[k].l, w: st.rev[k].w || "", t: st.rev[k].t || 0 }); });
+    out.sort(function (a, b) { return b.t - a.t || b.n - a.n; }); return out;
   }
-  function lower(t, h) {
-    var k = key(t, h), l = lv(t, h); if (l === null) return;
-    if (l === 0) { delete st.level[k]; delete st.stamp[k]; } else { st.level[k] = l - 1; st.stamp[k] = Date.now(); }
-    save(); render();
-  }
+  function revCnt(n) { return dg(n) + " " + (ar() ? (n === 1 ? "مراجعة" : n === 2 ? "مراجعتان" : n <= 10 ? "مراجعات" : "مراجعة") : (n === 1 ? "revision" : "revisions")); }
   function toggleHizb(h) { var i = st.tracked.indexOf(h); if (i >= 0) st.tracked.splice(i, 1); else st.tracked.push(h); save(); render(); }
   function setJuz(j, on) { [2 * j - 1, 2 * j].forEach(function (h) { var i = st.tracked.indexOf(h); if (on && i < 0) st.tracked.push(h); if (!on && i >= 0) st.tracked.splice(i, 1); }); save(); render(); }
 
@@ -421,135 +509,185 @@ main { gap: 8px; padding-top: 2px; }
     for (var i = 0; i < 4; i++) { var b = e("i"); if (l !== null && i <= l) b.style.background = "var(--c" + l + ")"; m.appendChild(b); }
     return m;
   }
+  function clockIcon() {
+    var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
+    sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("width", "13"); sv.setAttribute("height", "13"); sv.setAttribute("fill", "none");
+    sv.setAttribute("stroke", "currentColor"); sv.setAttribute("stroke-width", "2.4"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("aria-hidden", "true");
+    var c = document.createElementNS(ns, "circle"); c.setAttribute("cx", "12"); c.setAttribute("cy", "12"); c.setAttribute("r", "9");
+    var p = document.createElementNS(ns, "path"); p.setAttribute("d", "M12 7v5l3 2"); sv.appendChild(c); sv.appendChild(p); return sv;
+  }
 
   function renderTabs() {
     var nav = $("#tabs"); nav.textContent = "";
-    function mk(label, idx) { var b = e("button", "chip", label); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(tab === idx)); b.onclick = function () { tab = idx; delArmed = false; render(); }; nav.appendChild(b); }
-    mk(T("overview"), -1);
-    for (var r = 1; r <= st.rounds; r++) mk(roundN(r), r);
-    var a = e("button", "chip add", "+ " + T("addRound")); a.type = "button";
-    a.onclick = function () { if (st.rounds < 60) st.rounds++; tab = st.rounds; save(); render(); };
-    nav.appendChild(a);
+    function mk(label, id, wide) {
+      var b = e("button", "chip" + (wide ? " wide" : ""), label); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(tab === id));
+      b.onclick = function () { tab = id; if (id === "add") addDay = null; render(); }; nav.appendChild(b);
+    }
+    mk(T("overview"), "ov", false); mk(T("addRev"), "add", true); mk(T("history"), "log", false);
+  }
+
+  function seedDemo() {
+    st.tracked = [1, 2, 3, 4, 5, 6, 7, 8]; st.rev = {};
+    [[13,1,1,""],[9,1,2,""],[4,1,3,""],[1,1,3,""],[13,2,0,"5, 7"],[9,2,1,"5"],[6,2,1,""],[2,2,2,"7"],[9,3,2,""],[4,3,3,""],
+     [13,4,0,""],[6,4,1,"12-14"],[0,4,1,"13"],[2,5,3,""],[0,5,2,""],[12,6,1,""],[8,6,0,"3, 4"],[0,8,3,""],[1,8,3,""],[3,8,2,""]].forEach(function (x) {
+      var ts = Date.now() - x[0] * 86400000; st.rev[ek(dayKey(ts), x[1])] = { l: x[2], w: x[3], t: ts };
+    });
+    save(); render();
   }
 
   function empty(main) {
     var d = e("div", "empty card");
     d.appendChild(e("h2", null, T("emptyTitle"))); d.appendChild(e("p", null, T("emptyBody")));
     var b = e("button", "btn filled", "+ " + T("addHizb")); b.type = "button"; b.onclick = openSheet; d.appendChild(b);
+    if (DEMO) { var s2 = e("button", "btn text", T("demoSeed")); s2.type = "button"; s2.onclick = seedDemo; d.appendChild(s2); }
     main.appendChild(d);
-  }
-
-  function dotLabel(l) {
-    var s = e("span", "pill"); var d = e("i", "dot"); d.style.background = l === null ? "var(--line)" : "var(--c" + l + ")";
-    s.appendChild(d); s.appendChild(document.createTextNode(l === null ? T("notRated") : T("c" + l))); return s;
   }
 
   function overview(main) {
     if (!st.tracked.length) return empty(main);
-    var counts = [0, 0, 0, 0, 0];
-    st.tracked.forEach(function (h) { var l = latest(h); counts[l === null ? 4 : l]++; });
+    var idx = byHizb(), counts = [0, 0, 0, 0], statsBy = {};
+    tracked().forEach(function (h) { var q = statsFor(idx[h]); statsBy[h] = q; if (q) counts[q.bucket]++; });
     var stats = e("div", "stats5");
     [3, 2, 1, 0].forEach(function (i) {
-      var c = e("div", "card stat"); var bar = e("i"); bar.style.background = i === 4 ? "var(--line)" : "var(--c" + i + ")"; c.appendChild(bar);
-      c.appendChild(e("b", null, dg(counts[i]))); c.appendChild(e("small", null, i === 4 ? T("notRated") : T("c" + i))); stats.appendChild(c);
+      var c = e("div", "card stat"); var bar = e("i"); bar.style.background = "var(--c" + i + ")"; c.appendChild(bar);
+      c.appendChild(e("b", null, dg(counts[i]))); c.appendChild(e("small", null, lvPct(i))); stats.appendChild(c);
     });
     main.appendChild(stats);
-
-    var grid = e("div", "grid");
-    var juzs = []; tracked().forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
+    var grid = e("div", "grid"), juzs = [];
+    tracked().forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
     juzs.forEach(function (j) {
       var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g);
-      tracked().filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(hizbCard(h)); });
+      tracked().filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(hizbCard(h, statsBy[h])); });
     });
     main.appendChild(grid);
-    main.appendChild(e("p", "note", T("note")));
+    main.appendChild(e("p", "note", T("noteOv")));
   }
 
-  function hizbCard(h) {
-    var l = latest(h), lr = latestRound(h), card = e("div", "tile");
+  function hizbCard(h, q) {
+    var l = q ? q.bucket : null, card = e("div", "tile");
     if (l !== null) { card.style.background = "var(--t" + l + ")"; card.style.borderColor = "var(--c" + l + ")"; }
     card.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
     card.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
     var top = e("div", "tile-top"); top.appendChild(e("b", null, hizbN(h)));
-    var p = e("span", "pips"); for (var r = 1; r <= st.rounds; r++) p.appendChild(e("i", "pip" + (lv(r, h) !== null ? " on" : ""))); top.appendChild(p);
+    var p = e("span", "pips"); for (var i = 0; i < 3; i++) p.appendChild(e("i", "pip" + (q && i < q.n ? " on" : ""))); top.appendChild(p);
     card.appendChild(top);
     var stl = e("div", "tile-st"); var d = e("i", "dot"); d.style.background = l === null ? "var(--line)" : "var(--c" + l + ")";
-    stl.appendChild(d); stl.appendChild(e("span", null, l === null ? T("notRated") : T("c" + l)));
-    if (lr !== null) stl.appendChild(e("small", null, (ar() ? "م" + dg(lr) : "R" + lr)));
-    card.appendChild(stl);
-    var la = latestActive(h), w = la === null ? "" : wk(la, h);
-    var wl = e("div", "wline" + (w ? " has" : "")); wl.appendChild(e("span", "wk", T("weakPages") + ":")); wl.appendChild(e("span", "wv", w || "\u2014"));
+    stl.appendChild(d); stl.appendChild(e("span", "pct", q ? pct(q.avg) : "—")); card.appendChild(stl);
+    var ago = e("div", "ago" + (q && q.days >= 7 ? " late" : "")); ago.appendChild(clockIcon()); ago.appendChild(e("span", null, q ? agoText(q.days) : T("notRevised"))); card.appendChild(ago);
+    var w = q ? q.weak : "";
+    var wl = e("div", "wline" + (w ? " has" : "")); wl.appendChild(e("span", "wk", T("weakPages") + ":")); wl.appendChild(e("span", "wv", w || "—"));
     card.appendChild(wl);
     return card;
   }
 
-  function deleteRound(n) {
-    var lvl = {}, stp = {};
-    Object.keys(st.level).forEach(function (k) {
-      var i = k.indexOf(":"), t = +k.slice(0, i), h = k.slice(i + 1);
-      if (t === n) return;
-      var nk = (t > n ? t - 1 : t) + ":" + h;
-      lvl[nk] = st.level[k]; if (st.stamp[k] !== undefined) stp[nk] = st.stamp[k];
-    });
-    var wkm = {};
-    Object.keys(st.weak).forEach(function (k) { var i = k.indexOf(":"), t = +k.slice(0, i), h = k.slice(i + 1); if (t === n) return; wkm[(t > n ? t - 1 : t) + ":" + h] = st.weak[k]; });
-    st.weak = wkm; st.level = lvl; st.stamp = stp; st.rounds--;
-    tab = Math.min(n, st.rounds); delArmed = false; save(); render();
+  function entryLine(x, withDel) {
+    var b = e("div", "lrow static");
+    var pc = e("span", "lpct", lvPct(x.l)); pc.style.background = "var(--c" + x.l + ")"; pc.style.color = LX[x.l]; b.appendChild(pc);
+    var tx = e("span", "ltx"); tx.appendChild(e("b", null, hizbN(x.h)));
+    if (x.w) tx.appendChild(e("small", null, T("weakPages") + ": " + x.w));
+    b.appendChild(tx);
+    if (withDel) {
+      if (delK === x.k) {
+        var no = e("button", "btn text small", T("cancel")); no.type = "button"; no.onclick = function () { delK = null; render(); };
+        var yes = e("button", "btn text small", T("delQ")); yes.type = "button"; yes.style.color = "var(--err)"; yes.onclick = function () { delete st.rev[x.k]; delK = null; save(); render(); };
+        b.appendChild(no); b.appendChild(yes);
+      } else {
+        var d = e("button", "minus", "×"); d.type = "button"; d.title = T("del"); d.setAttribute("aria-label", T("del") + " — " + hizbN(x.h)); d.onclick = function () { delK = x.k; render(); }; b.appendChild(d);
+      }
+    }
+    return b;
   }
 
-  function tabView(main) {
+  function addView(main) {
     if (!st.tracked.length) return empty(main);
-    var hz = tracked(), counts = [0, 0, 0, 0];
-    hz.forEach(function (h) { var l = lv(tab, h); if (l !== null) counts[l]++; });
-    var rated = counts.reduce(function (a, b) { return a + b; }, 0);
-    var card = e("div", "card pad"), top = e("div", "prog-top");
-    var nm = e("span", "prog-name"); nm.appendChild(document.createTextNode(roundN(tab)));
-    if (st.rounds > 1 && !delArmed) {
-      var rb = e("button", "btn text small", T("removeRound")); rb.type = "button"; rb.onclick = function () { delArmed = true; render(); }; nm.appendChild(rb);
-    }
-    top.appendChild(nm);
-    top.appendChild(e("span", null, ar() ? dg(rated) + " من " + dg(hz.length) + " مقيَّم" : rated + " of " + hz.length + " rated"));
-    card.appendChild(top);
-    var bar = e("div", "meterbar");
-    for (var i = 3; i >= 0; i--) if (counts[i]) { var seg = e("i"); seg.style.width = (counts[i] / hz.length * 100) + "%"; seg.style.background = "var(--c" + i + ")"; bar.appendChild(seg); }
-    card.appendChild(bar);
-    if (st.rounds > 1 && delArmed) {
-      var c = e("div", "confirm"); c.appendChild(e("span", null, T("deleteRoundQ")));
-      var acts = e("div", "acts");
-      var n = e("button", "btn text", T("cancel")); n.type = "button"; n.onclick = function () { delArmed = false; render(); };
-      var y = e("button", "btn text", T("del")); y.type = "button"; y.style.color = "var(--err)"; var cur = tab; y.onclick = function () { deleteRound(cur); };
-      acts.appendChild(n); acts.appendChild(y); c.appendChild(acts); card.appendChild(c);
-    }
-    main.appendChild(card);
-    var grid = e("div", "grid");
-    var juzs = []; hz.forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
+    var day = addDay || todayKey(), hz = tracked(), ents = dayEntries(day);
+    var card = e("div", "card pad"), dr = e("div", "dateRow");
+    dr.appendChild(e("label", null, T("revDay"))); dr.firstChild.setAttribute("for", "rev-day");
+    var wrap = e("div", "dwrap"), di = e("input"); di.type = "date"; di.id = "rev-day"; di.value = day; di.max = todayKey();
+    di.addEventListener("change", function () { var v = di.value; addDay = (v && v <= todayKey() && v !== todayKey()) ? v : null; delK = null; render(); });
+    wrap.appendChild(di);
+    if (day !== todayKey()) { var tb = e("button", "btn text small", T("today")); tb.type = "button"; tb.onclick = function () { addDay = null; delK = null; render(); }; wrap.appendChild(tb); }
+    dr.appendChild(wrap); card.appendChild(dr);
+    var top = e("div", "prog-top"); top.style.marginTop = "10px";
+    top.appendChild(e("span", null, daysAgo(day) === 0 ? T("today") : agoText(daysAgo(day))));
+    top.appendChild(e("span", null, revCnt(ents.length)));
+    card.appendChild(top); main.appendChild(card);
+
+    var grid = e("div", "grid"), juzs = [];
+    hz.forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
     juzs.forEach(function (j) {
       var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g);
-      hz.filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(row(h)); });
+      hz.filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(row(h, ents)); });
     });
     main.appendChild(grid);
+    main.appendChild(e("p", "note", T("noteAdd")));
+    var hd = e("div", "dayh"); hd.appendChild(e("span", null, T("loggedDay"))); main.appendChild(hd);
+    if (!ents.length) main.appendChild(e("p", "note", T("noneDay")));
+    ents.forEach(function (x) { main.appendChild(entryLine(x, true)); });
   }
 
-  function row(h) {
-    var cell = e("div", "rcell");
-    var l = lv(tab, h), r = e("div", "row");
+  function row(h, ents) {
+    var mine = ents.filter(function (x) { return x.h === h; }), last = mine.length ? mine[0] : null, l = last ? last.l : null;
+    var cell = e("div", "rcell"), r = e("div", "row");
     r.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
     r.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
     if (l !== null) { r.style.background = "var(--t" + l + ")"; r.style.borderColor = "var(--c" + l + ")"; }
-    var m = e("button", "main"); m.type = "button"; m.onclick = function () { raise(tab, h); };
+    var m = e("button", "main"); m.type = "button"; m.onclick = function () { revH = h; revL = null; sheetMode = "rev"; render(); setTimeout(function () { var i = $("#rev-w"); if (i && !("ontouchstart" in window)) i.focus(); }, 0); };
     m.appendChild(meter(l));
     var lab = e("span", "lab"); lab.appendChild(e("b", null, hizbN(h)));
-    lab.appendChild(e("small", null, l === null ? T("tapToStart") : T("c" + l)));
-    m.appendChild(lab); r.appendChild(m);
-    if (l !== null) { var mn = e("button", "minus", "−"); mn.type = "button"; mn.title = T("lower"); mn.setAttribute("aria-label", T("lower")); mn.onclick = function () { lower(tab, h); }; r.appendChild(mn); }
-    cell.appendChild(r);
-    var t = tab, k = key(t, h), inp = e("input");
-    inp.type = "text"; inp.id = "rw-" + t + "-" + h; inp.placeholder = T("weakPages"); inp.value = st.weak[k] || ""; inp.setAttribute("autocomplete", "off");
-    inp.setAttribute("aria-label", T("weakPages") + " — " + hizbN(h) + ", " + roundN(t));
-    if (inp.value) inp.className = "has";
-    inp.addEventListener("input", function () { var v = inp.value; if (v.trim()) st.weak[k] = v; else delete st.weak[k]; inp.className = v.trim() ? "has" : ""; save(); });
-    cell.appendChild(inp);
+    lab.appendChild(e("small", null, last ? (mine.length > 1 ? (ar() ? (mine.length === 2 ? "مرتان" : dg(mine.length) + " مرات") : "×" + mine.length) + " · " : "") + lvPct(l) : T("tapToMark")));
+    m.appendChild(lab); r.appendChild(m); cell.appendChild(r);
     return cell;
+  }
+
+  function revSheet(sh) {
+    var day = addDay || todayKey();
+    sh.appendChild(e("h2", null, hizbN(revH) + " — " + (daysAgo(day) === 0 ? T("today") : dayLabel(day))));
+    var list = e("div", "list");
+    list.appendChild(e("div", "set-t", T("chooseLvl")));
+    var lw = e("div", "lvgrid");
+    for (var i = 0; i < 4; i++) (function (i) {
+      var b = e("button", "lvbtn", lvPct(i)); b.type = "button"; b.setAttribute("aria-pressed", String(revL === i));
+      b.style.setProperty("--lc", "var(--c" + i + ")"); b.style.setProperty("--lx", LX[i]);
+      b.onclick = function () { revL = i; var w = $("#rev-w"); revW = w ? w.value : revW; render(); }; lw.appendChild(b);
+    })(i);
+    list.appendChild(lw);
+    list.appendChild(e("div", "set-t", T("weakPages")));
+    var wi = e("input", "pin"); wi.type = "text"; wi.id = "rev-w"; wi.placeholder = T("weakPages"); wi.value = revW; wi.setAttribute("autocomplete", "off"); wi.style.width = "100%";
+    wi.addEventListener("input", function () { revW = wi.value; });
+    wi.addEventListener("keydown", function (ev) { if (ev.key === "Enter") submit(); });
+    list.appendChild(wi); sh.appendChild(list);
+    var ft = e("div", "foot");
+    var ok = e("button", "btn filled", T("addRevBtn")); ok.type = "button"; ok.disabled = revL === null; ok.onclick = submit; ft.appendChild(ok);
+    var cn = e("button", "btn text", T("cancel")); cn.type = "button"; cn.onclick = closeSheet; ft.appendChild(cn);
+    sh.appendChild(ft);
+    function submit() { if (revL === null) return; addEntry(day, revH, revL, revW.trim().slice(0, 200)); revW = ""; revL = null; closeSheet(); }
+  }
+
+  function dayLabel(k) {
+    var n = daysAgo(k); if (n === 0) return T("today"); if (n === 1) return T("yesterday");
+    var q = k.split("-");
+    try { return dg(new Date(+q[0], +q[1] - 1, +q[2]).toLocaleDateString(ar() ? "ar" : undefined, { weekday: "short", day: "numeric", month: "short" })); } catch (x) { return k; }
+  }
+  function logView(main) {
+    var days = {}, order = [];
+    Object.keys(st.rev).forEach(function (k) { var q = parseK(k); if (!days[q.day]) { days[q.day] = 1; order.push(q.day); } });
+    if (!order.length) { var em = e("div", "empty card"); em.appendChild(e("p", null, T("logEmpty"))); main.appendChild(em); return; }
+    order.sort(function (a, b) { return a < b ? 1 : a > b ? -1 : 0; });
+    order.forEach(function (day) {
+      var es = dayEntries(day);
+      var head = e("div", "dayh"); head.appendChild(e("span", null, dayLabel(day))); head.appendChild(e("small", null, revCnt(es.length))); main.appendChild(head);
+      es.forEach(function (x) {
+        var b = e("button", "lrow"); b.type = "button";
+        var pc = e("span", "lpct", lvPct(x.l)); pc.style.background = "var(--c" + x.l + ")"; pc.style.color = LX[x.l]; b.appendChild(pc);
+        var tx = e("span", "ltx"); tx.appendChild(e("b", null, hizbN(x.h)));
+        if (x.w) tx.appendChild(e("small", null, T("weakPages") + ": " + x.w));
+        b.appendChild(tx);
+        b.onclick = function () { addDay = day === todayKey() ? null : day; delK = null; tab = "add"; render(); window.scrollTo(0, 0); };
+        main.appendChild(b);
+      });
+    });
+    main.appendChild(e("p", "note", T("logTap")));
   }
 
   function dispName(p) { return p.name || T("me"); }
@@ -557,13 +695,13 @@ main { gap: 8px; padding-top: 2px; }
     var idx = db.profiles.indexOf(p), a = e("span", "av", (Array.from(dispName(p))[0] || "?").toUpperCase());
     a.style.background = AVC[(idx < 0 ? 0 : idx) % AVC.length]; return a;
   }
-  function closeSheet() { sheetMode = null; editingId = null; delPersonArmed = false; render(); }
+  function closeSheet() { revW = ""; revL = null; sheetMode = null; editingId = null; delPersonArmed = false; render(); }
   function openSheet() { sheetMode = "add"; render(); }
-  function switchTo(id) { for (var i = 0; i < db.profiles.length; i++) if (db.profiles[i].id === id) { st = db.profiles[i]; db.active = id; } tab = -1; delArmed = false; sheetMode = null; editingId = null; save(); render(); }
+  function switchTo(id) { for (var i = 0; i < db.profiles.length; i++) if (db.profiles[i].id === id) { st = db.profiles[i]; db.active = id; } tab = "ov"; delArmed = false; sheetMode = null; editingId = null; save(); render(); }
   function deletePerson(id) {
     if (db.profiles.length < 2) return;
     db.profiles = db.profiles.filter(function (p) { return p.id !== id; });
-    if (db.active === id) { st = db.profiles[0]; db.active = st.id; tab = -1; }
+    if (db.active === id) { st = db.profiles[0]; db.active = st.id; tab = "ov"; }
     editingId = null; delPersonArmed = false; save(); render();
   }
   function focusEdit() { var i = $("#edit-name"); if (i) { i.focus(); i.select(); } }
@@ -620,7 +758,7 @@ main { gap: 8px; padding-top: 2px; }
     var nb = e("button", "btn filled", "+ " + T("addPerson")); nb.type = "button";
     var create = function () {
       var nm = ni.value.trim().slice(0, 24) || (T("person") + " " + dg(db.profiles.length + 1));
-      var np = blank(nm); db.profiles.push(np); db.active = np.id; st = np; tab = -1; sheetMode = null; editingId = null; delPersonArmed = false; save(); render();
+      var np = blank(nm); db.profiles.push(np); db.active = np.id; st = np; tab = "ov"; sheetMode = null; editingId = null; delPersonArmed = false; save(); render();
     };
     nb.onclick = create; ni.addEventListener("keydown", function (ev) { if (ev.key === "Enter") create(); });
     add.appendChild(ni); add.appendChild(nb); list.appendChild(add);
@@ -652,6 +790,7 @@ main { gap: 8px; padding-top: 2px; }
     sh.textContent = ""; sh.setAttribute("data-mode", sheetMode || "");
     if (!sheetMode) return;
     if (sheetMode === "add") addSheet(sh, keepTop);
+    else if (sheetMode === "rev") revSheet(sh);
     else if (sheetMode === "profiles") { profilesSheet(sh); var l2 = sh.querySelector(".list"); if (l2) l2.scrollTop = keepTop; }
     else settingsSheet(sh);
   }
@@ -662,7 +801,7 @@ main { gap: 8px; padding-top: 2px; }
   $("#fab").onclick = openSheet;
 
   function render() {
-    if (tab > st.rounds || tab === 0) tab = tab === 0 ? -1 : st.rounds;
+    if (tab !== "ov" && tab !== "add" && tab !== "log") tab = "ov";
     var root = document.documentElement;
     root.lang = st.lang; root.dir = ar() ? "rtl" : "ltr";
     if (st.skin === "classic") root.removeAttribute("data-skin"); else root.setAttribute("data-skin", st.skin);
@@ -672,8 +811,8 @@ main { gap: 8px; padding-top: 2px; }
     $("#gear").setAttribute("aria-label", T("settings")); $("#gear").title = T("settings");
     renderTabs();
     var main = $("#main"); main.textContent = "";
-    if (tab === -1) overview(main); else tabView(main);
-    var fab = $("#fab"); fab.hidden = tab !== -1; fab.textContent = "+ " + T("addHizb");
+    if (tab === "ov") overview(main); else if (tab === "add") addView(main); else logView(main);
+    var fab = $("#fab"); fab.hidden = tab !== "ov"; fab.textContent = "+ " + T("addHizb");
     renderSheet();
   }
   render();
