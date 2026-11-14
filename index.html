@@ -326,6 +326,31 @@ main { gap: 8px; padding-top: 2px; }
 .lrow.static { cursor: default; }
 .lrow.static .minus { margin-inline: auto 0; }
 .sheet .foot { display: flex; gap: 8px; } .sheet .foot .btn.filled { flex: 1; }
+.filters { display: flex; gap: 6px; }
+.fchip2 { width: auto; min-height: 34px; padding: 4px 14px; flex: 0 0 auto; }
+.fchip2[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.tile.tap { cursor: pointer; }
+.tabs .chip.side { grid-column: span 1; }
+.tabs .chip.main { font-weight: 800; font-size: calc(16px * var(--fs, 1)); min-height: 46px; background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.tabs .chip.main[aria-selected="false"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.tabs { align-items: stretch; }
+.tabs .chip.past { color: var(--accent); border-style: dashed; font-weight: 700; }
+.stat { font: inherit; color: inherit; cursor: pointer; }
+.stat.on { outline: 2px solid var(--fg); outline-offset: -2px; }
+.stats5 .stat { position: relative; }
+.sortbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.spill { display: flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 700; font-size: calc(14px * var(--fs, 1)); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; min-height: 42px; padding: 6px 12px; cursor: pointer; }
+.spill svg { width: 16px; height: 16px; flex: none; }
+.spill .arr { font-style: normal; font-weight: 800; min-width: 1ch; }
+.spill.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+:root[data-skin="soft"] .spill { border-color: transparent; box-shadow: 0 2px 8px rgba(44,60,110,.1); }
+:root[data-skin="blocks"] .spill.on, :root[data-skin="minimal"] .spill.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+:root[data-skin="emerald"] .spill.on { color: var(--accent); }
+.cap { font-size: calc(11px * var(--fs, 1)); font-weight: 700; letter-spacing: .04em; color: var(--muted); margin: 2px 2px -4px; }
+.rstat i { background: var(--accent); }
+.rstat.r1 i { opacity: .7; } .rstat.r2 i { opacity: .45; } .rstat.r3 i { background: var(--err); opacity: 1; }
+.rstat.r3 b { color: var(--err); }
+.rstat small { white-space: normal; }
 </style>
 </head>
 <body>
@@ -343,14 +368,14 @@ main { gap: 8px; padding-top: 2px; }
 <script>
 (function () {
   var EN = {
-    appTitle: "Hifz Revision Log", overview: "Overview", addRev: "Add a revision", history: "History", addHizb: "Add memorised",
-    addTitle: "Choose the hizbs you have memorised", addBoth: "Add both", removeBoth: "Remove both", done: "Done", cancel: "Cancel", del: "Delete",
-    emptyTitle: "No hizbs yet", emptyBody: "Add the hizbs you have memorised, then mark what you revise each day.",
+    appTitle: "Hifz Revision Log", overview: "My Hifz", addPast: "Add revision", gradeT: "Grade", lastT: "Last revised", r0: "Today", r1: "1–3 days", r2: "4–6 days", r3: "Overdue", pastT: "Add a past revision", pastPick: "Choose the day, then the item you revised.", sLatest: "Latest", sGrade: "Grade", sortBy: "Sort by", addRev: "Add a revision", history: "History", addHizb: "Add memorised",
+    fAll: "All", fWeak: "Weak", fLate: "Overdue", fNone: "Nothing matches this filter.", unitT: "Hifz unit", unitNote: "Each unit keeps its own list and revisions.", u_page: "Page", u_rub: "Quarter of a hizb", u_hizb: "Hizb", u_juz: "Juz", addBoth: "Add all", removeBoth: "Remove all", done: "Done", cancel: "Cancel", del: "Delete",
+    emptyTitle: "Nothing added yet", emptyBody: "Add what you have memorised, then mark what you revise each day.",
     tapToMark: "Tap to mark", lower: "Lower", weakPages: "Weak pages",
     notRevised: "Not revised yet", today: "Today", yesterday: "Yesterday", revDay: "Revision day", addRevBtn: "Add revision", chooseLvl: "How well did you revise it?", loggedDay: "Logged this day", noneDay: "Nothing logged for this day yet.", delQ: "Delete?",
-    noteOv: "Each box shows the average of that hizb's last 3 revisions and how long ago you last revised it. Log your revisions in Add a revision.",
-     noteAdd: "Tap a hizb, choose how well you revised it and add it. Every time you add, it is saved as a new revision, so you can add the same hizb more than once a day.",
-    logEmpty: "No revisions logged yet. Use Add a revision to log your first one.", logTap: "Tap a line to open that day and edit it.",
+    noteOv: "Each box shows the average of its last 3 revisions and how long ago you last revised it. Tap a box to log a revision right away.",
+     noteAdd: "Tap a box, choose how well you revised it and add it. Every time you add, it is saved as a new revision, so you can add the same one more than once a day.",
+    logEmpty: "No revisions yet. Tap a box in My Hifz to log your first one.", logTap: "Tap × to delete an entry added by mistake.",
     demoSeed: "Load sample data (demo only)",
     preview: "Your marks are saved on this device only.",
     profiles: "Who is using the app?", addPerson: "Add a person", namePh: "Name", edit: "Edit", save: "Save",
@@ -359,14 +384,14 @@ main { gap: 8px; padding-top: 2px; }
     style: "Style", s_classic: "Classic", s_minimal: "Minimal", s_soft: "Soft", s_blocks: "Blocks", s_emerald: "Emerald", s_glass: "Glass"
   };
   var AR = {
-    appTitle: "سجل مراجعة الحفظ", overview: "نظرة عامة", addRev: "تسجيل مراجعة", history: "السجل", addHizb: "إضافة محفوظ",
-    addTitle: "اختر الأحزاب التي حفظتها", addBoth: "إضافة الحزبين", removeBoth: "إزالة الحزبين", done: "تم", cancel: "إلغاء", del: "حذف",
-    emptyTitle: "لا توجد أحزاب بعد", emptyBody: "أضف الأحزاب التي حفظتها، ثم سجّل ما تراجعه كل يوم.",
+    appTitle: "سجل مراجعة الحفظ", overview: "حفظي", addPast: "إضافة مراجعة", gradeT: "التقدير", lastT: "آخر مراجعة", r0: "اليوم", r1: "١–٣ أيام", r2: "٤–٦ أيام", r3: "متأخر", pastT: "إضافة مراجعة سابقة", pastPick: "اختر اليوم، ثم ما راجعته.", sLatest: "الأحدث", sGrade: "التقدير", sortBy: "ترتيب حسب", addRev: "تسجيل مراجعة", history: "السجل", addHizb: "إضافة محفوظ",
+    fAll: "الكل", fWeak: "ضعيف", fLate: "متأخر", fNone: "لا يوجد ما يطابق هذا الفلتر.", unitT: "وحدة الحفظ", unitNote: "لكل وحدة قائمتها ومراجعاتها الخاصة.", u_page: "صفحة", u_rub: "ربع حزب", u_hizb: "حزب", u_juz: "جزء", addBoth: "إضافة الكل", removeBoth: "إزالة الكل", done: "تم", cancel: "إلغاء", del: "حذف",
+    emptyTitle: "لم تُضف شيئًا بعد", emptyBody: "أضف ما حفظته، ثم سجّل ما تراجعه كل يوم.",
     tapToMark: "اضغط للتقييم", lower: "خفض", weakPages: "الصفحات الضعيفة",
     notRevised: "لم تُراجع بعد", today: "اليوم", yesterday: "أمس", revDay: "يوم المراجعة", addRevBtn: "إضافة المراجعة", chooseLvl: "كيف كانت مراجعتك؟", loggedDay: "المسجَّل في هذا اليوم", noneDay: "لم تُسجَّل أي مراجعة في هذا اليوم بعد.", delQ: "حذف؟",
-    noteOv: "يعرض كل مربع متوسط آخر ٣ مراجعات لذلك الحزب، وكم مضى على آخر مراجعة. سجّل مراجعاتك من تبويب تسجيل مراجعة.",
-     noteAdd: "اضغط على الحزب، واختر مستوى مراجعتك، ثم أضِفها. كل إضافة تُحفظ كمراجعة جديدة، فيمكنك إضافة الحزب نفسه أكثر من مرة في اليوم.",
-    logEmpty: "لا توجد مراجعات مسجلة بعد. استخدم تسجيل مراجعة لتسجيل أول مراجعة.", logTap: "اضغط على أي سطر لفتح ذلك اليوم وتعديله.",
+    noteOv: "يعرض كل مربع متوسط آخر ٣ مراجعات له، وكم مضى على آخر مراجعة. اضغط على المربع لتسجيل مراجعة مباشرة.",
+     noteAdd: "اضغط على المربع، واختر مستوى مراجعتك، ثم أضِفها. كل إضافة تُحفظ كمراجعة جديدة، فيمكنك إضافة العنصر نفسه أكثر من مرة في اليوم.",
+    logEmpty: "لا توجد مراجعات بعد. اضغط على مربع في حفظي لتسجيل أول مراجعة.", logTap: "اضغط × لحذف إدخال أُضيف بالخطأ.",
     demoSeed: "تحميل بيانات تجريبية (للعرض فقط)",
     preview: "تُحفظ تقييماتك على هذا الجهاز فقط.",
     profiles: "من يستخدم التطبيق؟", addPerson: "إضافة شخص", namePh: "الاسم", edit: "تعديل", save: "حفظ",
@@ -381,7 +406,7 @@ main { gap: 8px; padding-top: 2px; }
   var LX = ["#ffffff", "#1b0f00", "#1b1600", "#ffffff"];
   var AVC = ["#2c4691", "#2f9455", "#d9731a", "#8a4fbf", "#c93a47", "#0f8b8d"];
   var db = null, st = null;
-  var tab = "ov", addDay = null, revH = null, revL = null, revW = "", delK = null, sheetMode = null, editingId = null, delPersonArmed = false, delArmed = false;
+  var tab = "ov", addDay = null, revH = null, revL = null, gF = null, tF = null, pastDay = null, revW = "", delK = null, sheetMode = null, editingId = null, delPersonArmed = false, delArmed = false;
 
   function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
@@ -390,14 +415,22 @@ main { gap: 8px; padding-top: 2px; }
   function dayNum(k) { var q = k.split("-"); return Date.UTC(+q[0], +q[1] - 1, +q[2]) / 86400000; }
   function daysAgo(k) { return Math.max(0, Math.round(dayNum(todayKey()) - dayNum(k))); }
 
-  function blank(name) { return { id: uid(), name: name || "", lang: "ar", skin: "classic", size: 0, tracked: [], rev: {} }; }
-  function cleanRev(r) {
+  var UK = ["page", "rub", "hizb", "juz"], UMAX = { page: 604, rub: 240, hizb: 60, juz: 30 };
+  function slot(p) { return p.u[p.unit] || (p.u[p.unit] = { tracked: [], rev: {} }); }
+  // tracked and rev always mean "for the unit chosen now"; each unit keeps its own copy inside p.u.
+  function wire(p) {
+    Object.defineProperty(p, "tracked", { get: function () { return slot(this).tracked; }, set: function (v) { slot(this).tracked = v; }, enumerable: false, configurable: true });
+    Object.defineProperty(p, "rev", { get: function () { return slot(this).rev; }, set: function (v) { slot(this).rev = v; }, enumerable: false, configurable: true });
+    return p;
+  }
+  function blank(name) { return wire({ id: uid(), name: name || "", lang: "ar", skin: "classic", size: 0, unit: "hizb", u: { hizb: { tracked: [], rev: {} } } }); }
+  function cleanRev(r, max) {
     var out = {};
     Object.keys(r || {}).forEach(function (k) {
       var m = /^(\d{4}-\d{2}-\d{2})(?:#(\d{1,2}))?:(\d+)$/.exec(k), v = r[k];
       if (!m || !v || typeof v !== "object" || typeof v.l !== "number") return;
       var h = +m[3], l = v.l | 0;
-      if (h < 1 || h > 60 || l < 0 || l > 3) return;
+      if (h < 1 || h > (max || 60) || l < 0 || l > 3) return;
       out[k] = { l: l, w: typeof v.w === "string" ? v.w.slice(0, 200) : "", t: +v.t || 0 };
     });
     return out;
@@ -420,15 +453,26 @@ main { gap: 8px; padding-top: 2px; }
   }
   function clean(o) {
     o = (o && typeof o === "object") ? o : {};
-    return {
+    var u = {};
+    if (o.u && typeof o.u === "object") {
+      UK.forEach(function (k) {
+        var x = o.u[k]; if (!x || typeof x !== "object") return;
+        u[k] = { tracked: (Array.isArray(x.tracked) ? x.tracked : []).filter(function (h) { return h >= 1 && h <= UMAX[k]; }), rev: cleanRev(x.rev, UMAX[k]) };
+      });
+    } else {
+      u.hizb = { tracked: (Array.isArray(o.tracked) ? o.tracked : []).filter(function (h) { return h >= 1 && h <= 60; }),
+        rev: (o.rev && typeof o.rev === "object") ? cleanRev(o.rev, 60) : legacyToRev(o) };
+    }
+    var p = wire({
       id: (typeof o.id === "string" && o.id) ? o.id : uid(),
       name: String(o.name || "").slice(0, 24),
       lang: o.lang === "en" ? "en" : "ar",
       skin: SK.indexOf(o.skin) >= 0 ? o.skin : "classic",
       size: (o.size === 1 || o.size === 2) ? o.size : 0,
-      tracked: (Array.isArray(o.tracked) ? o.tracked : []).filter(function (h) { return h >= 1 && h <= 60; }),
-      rev: (o.rev && typeof o.rev === "object") ? cleanRev(o.rev) : legacyToRev(o)
-    };
+      unit: UK.indexOf(o.unit) >= 0 ? o.unit : "hizb",
+      u: u
+    });
+    slot(p); return p;
   }
   // Load. A copy of the older round-based data is kept under another key before it is converted.
   try {
@@ -438,6 +482,7 @@ main { gap: 8px; padding-top: 2px; }
       if (d && Array.isArray(d.profiles)) {
         db = { active: d.active, profiles: d.profiles.map(clean) };
         if (/"level"\s*:/.test(raw) && !/"rev"\s*:/.test(raw) && !localStorage.getItem(KEY_BAK)) localStorage.setItem(KEY_BAK, raw);
+        if (raw.indexOf('"u":') < 0 && !localStorage.getItem("hifz-v3-before-units")) localStorage.setItem("hifz-v3-before-units", raw);
       }
     }
   } catch (e) {}
@@ -456,8 +501,30 @@ main { gap: 8px; padding-top: 2px; }
   var dg = function (x) { x = String(x); return ar() ? x.replace(/\d/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }) : x; };
   var pct = function (v) { return dg(v) + (ar() ? "٪" : "%"); };
   var lvPct = function (l) { return pct((l + 1) * 25); };
-  var juzOf = function (h) { return (h + 1) >> 1; };
-  var hizbN = function (h) { return ar() ? "الحزب " + dg(h) : "Hizb " + h; };
+  var juzOf = function (h) {
+    var u = st.unit;
+    return u === "page" ? (h <= 21 ? 1 : Math.min(30, Math.floor((h - 2) / 20) + 1)) : u === "rub" ? Math.ceil(h / 8) : u === "juz" ? h : (h + 1) >> 1;
+  };
+  function itemsInJuz(j) {
+    var out = [], a, b, i;
+    if (st.unit === "page") { a = j === 1 ? 1 : 20 * (j - 1) + 2; b = j === 30 ? 604 : 20 * j + 1; }
+    else if (st.unit === "rub") { a = 8 * (j - 1) + 1; b = 8 * j; }
+    else if (st.unit === "juz") { a = j; b = j; }
+    else { a = 2 * j - 1; b = 2 * j; }
+    for (i = a; i <= b; i++) out.push(i); return out;
+  }
+  var hizbN = function (h) {
+    var u = st.unit;
+    if (u === "page") return ar() ? "صفحة " + dg(h) : "Page " + h;
+    if (u === "juz") return ar() ? "الجزء " + dg(h) : "Juz " + h;
+    if (u === "rub") { var hz = Math.ceil(h / 4), q = (h - 1) % 4 + 1; return ar() ? "الحزب " + dg(hz) + " - الربع " + dg(q) : "Hizb " + hz + " · Q" + q; }
+    return ar() ? "الحزب " + dg(h) : "Hizb " + h;
+  };
+  var chipN = function (h) { return st.unit === "page" ? dg(h) : hizbN(h); };
+  function addTitleT() {
+    var pl = { page: ["الصفحات", "pages"], rub: ["الأرباع", "quarters of a hizb"], hizb: ["الأحزاب", "hizbs"], juz: ["الأجزاء", "juz"] }[st.unit];
+    return ar() ? "اختر " + pl[0] + " التي حفظتها" : "Choose the " + pl[1] + " you have memorised";
+  }
   var juzN = function (j) { return ar() ? "الجزء " + dg(j) : "Juz " + j; };
   var ek = function (day, h, n) { return (n > 1 ? day + "#" + n : day) + ":" + h; };
   var getE = function (day, h, n) { return st.rev[ek(day, h, n || 1)] || null; };
@@ -487,7 +554,7 @@ main { gap: 8px; padding-top: 2px; }
     var top = list.slice(0, 3), sum = 0;
     top.forEach(function (x) { sum += (x.l + 1) * 25; });
     var avg = sum / top.length;
-    return { avg: Math.round(avg), bucket: avg < 37.5 ? 0 : avg < 62.5 ? 1 : avg < 87.5 ? 2 : 3, n: top.length, days: daysAgo(list[0].day), weak: list[0].w };
+    return { avg: Math.round(avg), bucket: avg < 37.5 ? 0 : avg < 62.5 ? 1 : avg < 87.5 ? 2 : 3, n: top.length, days: daysAgo(list[0].day), weak: list[0].w, t: list[0].t || 0, n3: list[0].n };
   }
 
   function nextN(day, h) { var m = 0; Object.keys(st.rev).forEach(function (k) { var q = parseK(k); if (q.day === day && q.h === h && q.n > m) m = q.n; }); return m + 1; }
@@ -498,7 +565,7 @@ main { gap: 8px; padding-top: 2px; }
   }
   function revCnt(n) { return dg(n) + " " + (ar() ? (n === 1 ? "مراجعة" : n === 2 ? "مراجعتان" : n <= 10 ? "مراجعات" : "مراجعة") : (n === 1 ? "revision" : "revisions")); }
   function toggleHizb(h) { var i = st.tracked.indexOf(h); if (i >= 0) st.tracked.splice(i, 1); else st.tracked.push(h); save(); render(); }
-  function setJuz(j, on) { [2 * j - 1, 2 * j].forEach(function (h) { var i = st.tracked.indexOf(h); if (on && i < 0) st.tracked.push(h); if (!on && i >= 0) st.tracked.splice(i, 1); }); save(); render(); }
+  function setJuz(j, on) { itemsInJuz(j).forEach(function (h) { var i = st.tracked.indexOf(h); if (on && i < 0) st.tracked.push(h); if (!on && i >= 0) st.tracked.splice(i, 1); }); save(); render(); }
 
   function $(s) { return document.querySelector(s); }
   function e(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
@@ -508,6 +575,13 @@ main { gap: 8px; padding-top: 2px; }
     var m = e("span", "meter");
     for (var i = 0; i < 4; i++) { var b = e("i"); if (l !== null && i <= l) b.style.background = "var(--c" + l + ")"; m.appendChild(b); }
     return m;
+  }
+  function barsIcon() {
+    var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
+    sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("width", "13"); sv.setAttribute("height", "13"); sv.setAttribute("fill", "none");
+    sv.setAttribute("stroke", "currentColor"); sv.setAttribute("stroke-width", "3"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("aria-hidden", "true");
+    [[5, 15, 20], [10, 11, 20], [15, 7, 20], [20, 3, 20]].forEach(function (b) { var l = document.createElementNS(ns, "line"); l.setAttribute("x1", b[0]); l.setAttribute("x2", b[0]); l.setAttribute("y1", b[1]); l.setAttribute("y2", b[2]); sv.appendChild(l); });
+    return sv;
   }
   function clockIcon() {
     var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
@@ -519,15 +593,21 @@ main { gap: 8px; padding-top: 2px; }
 
   function renderTabs() {
     var nav = $("#tabs"); nav.textContent = "";
-    function mk(label, id, wide) {
-      var b = e("button", "chip" + (wide ? " wide" : ""), label); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(tab === id));
-      b.onclick = function () { tab = id; if (id === "add") addDay = null; render(); }; nav.appendChild(b);
+    function mk(label, id, cls, fn) {
+      var b = e("button", "chip" + (cls ? " " + cls : ""), label); b.type = "button";
+      if (id) { b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(tab === id)); }
+      b.onclick = fn || function () { tab = id; delK = null; render(); }; nav.appendChild(b);
     }
-    mk(T("overview"), "ov", false); mk(T("addRev"), "add", true); mk(T("history"), "log", false);
+    mk(T("history"), "log", "side");
+    mk(T("overview"), "ov", "wide main");
+    mk(T("addPast"), null, "side past", function () {
+      if (!st.tracked.length) { sheetMode = "add"; render(); return; }
+      var d = new Date(); d.setDate(d.getDate() - 1); pastDay = dayKey(d.getTime()); sheetMode = "past"; render();
+    });
   }
 
   function seedDemo() {
-    st.tracked = [1, 2, 3, 4, 5, 6, 7, 8]; st.rev = {};
+    st.unit = "hizb"; st.tracked = [1, 2, 3, 4, 5, 6, 7, 8]; st.rev = {};
     [[13,1,1,""],[9,1,2,""],[4,1,3,""],[1,1,3,""],[13,2,0,"5, 7"],[9,2,1,"5"],[6,2,1,""],[2,2,2,"7"],[9,3,2,""],[4,3,3,""],
      [13,4,0,""],[6,4,1,"12-14"],[0,4,1,"13"],[2,5,3,""],[0,5,2,""],[12,6,1,""],[8,6,0,"3, 4"],[0,8,3,""],[1,8,3,""],[3,8,2,""]].forEach(function (x) {
       var ts = Date.now() - x[0] * 86400000; st.rev[ek(dayKey(ts), x[1])] = { l: x[2], w: x[3], t: ts };
@@ -547,18 +627,33 @@ main { gap: 8px; padding-top: 2px; }
     if (!st.tracked.length) return empty(main);
     var idx = byHizb(), counts = [0, 0, 0, 0], statsBy = {};
     tracked().forEach(function (h) { var q = statsFor(idx[h]); statsBy[h] = q; if (q) counts[q.bucket]++; });
+    var rb = function (q) { return !q ? 3 : q.days === 0 ? 0 : q.days <= 3 ? 1 : q.days <= 6 ? 2 : 3; };
+    var rc = [0, 0, 0, 0]; tracked().forEach(function (h) { rc[rb(statsBy[h])]++; });
+    function capt(txt) { main.appendChild(e("div", "cap", txt)); }
+    capt(T("gradeT"));
     var stats = e("div", "stats5");
     [3, 2, 1, 0].forEach(function (i) {
-      var c = e("div", "card stat"); var bar = e("i"); bar.style.background = "var(--c" + i + ")"; c.appendChild(bar);
-      c.appendChild(e("b", null, dg(counts[i]))); c.appendChild(e("small", null, lvPct(i))); stats.appendChild(c);
+      var c = e("button", "card stat" + (gF === i ? " on" : "")); c.type = "button"; c.setAttribute("aria-pressed", String(gF === i));
+      var bar = e("i"); bar.style.background = "var(--c" + i + ")"; c.appendChild(bar);
+      c.appendChild(e("b", null, dg(counts[i]))); c.appendChild(e("small", null, lvPct(i)));
+      c.onclick = function () { gF = gF === i ? null : i; tF = null; render(); }; stats.appendChild(c);
     });
     main.appendChild(stats);
-    var grid = e("div", "grid"), juzs = [];
-    tracked().forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
-    juzs.forEach(function (j) {
-      var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g);
-      tracked().filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(hizbCard(h, statsBy[h])); });
+    capt(T("lastT"));
+    var rs = e("div", "stats5 recency");
+    [0, 1, 2, 3].forEach(function (i) {
+      var c = e("button", "card stat rstat r" + i + (tF === i ? " on" : "")); c.type = "button"; c.setAttribute("aria-pressed", String(tF === i));
+      c.appendChild(e("i")); c.appendChild(e("b", null, dg(rc[i]))); c.appendChild(e("small", null, T("r" + i)));
+      c.onclick = function () { tF = tF === i ? null : i; gF = null; render(); }; rs.appendChild(c);
     });
+    main.appendChild(rs);
+    var vis = tracked().filter(function (h) { return (gF === null || (statsBy[h] && statsBy[h].bucket === gF)) && (tF === null || rb(statsBy[h]) === tF); }), grid = e("div", "grid"), juzs = [];
+    vis.forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
+    juzs.forEach(function (j) {
+      if (st.unit !== "juz") { var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g); }
+      vis.filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(hizbCard(h, statsBy[h])); });
+    });
+    if (!vis.length) main.appendChild(e("p", "note", T("fNone")));
     main.appendChild(grid);
     main.appendChild(e("p", "note", T("noteOv")));
   }
@@ -568,6 +663,9 @@ main { gap: 8px; padding-top: 2px; }
     if (l !== null) { card.style.background = "var(--t" + l + ")"; card.style.borderColor = "var(--c" + l + ")"; }
     card.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
     card.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
+    card.classList.add("tap"); card.tabIndex = 0; card.setAttribute("role", "button"); card.setAttribute("aria-label", hizbN(h) + " — " + T("addRevBtn"));
+    var open = function () { addDay = null; revH = h; revL = null; revW = ""; sheetMode = "rev"; render(); };
+    card.onclick = open; card.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); open(); } });
     var top = e("div", "tile-top"); top.appendChild(e("b", null, hizbN(h)));
     var p = e("span", "pips"); for (var i = 0; i < 3; i++) p.appendChild(e("i", "pip" + (q && i < q.n ? " on" : ""))); top.appendChild(p);
     card.appendChild(top);
@@ -598,52 +696,29 @@ main { gap: 8px; padding-top: 2px; }
     return b;
   }
 
-  function addView(main) {
-    if (!st.tracked.length) return empty(main);
-    var day = addDay || todayKey(), hz = tracked(), ents = dayEntries(day);
-    var card = e("div", "card pad"), dr = e("div", "dateRow");
-    dr.appendChild(e("label", null, T("revDay"))); dr.firstChild.setAttribute("for", "rev-day");
-    var wrap = e("div", "dwrap"), di = e("input"); di.type = "date"; di.id = "rev-day"; di.value = day; di.max = todayKey();
-    di.addEventListener("change", function () { var v = di.value; addDay = (v && v <= todayKey() && v !== todayKey()) ? v : null; delK = null; render(); });
-    wrap.appendChild(di);
-    if (day !== todayKey()) { var tb = e("button", "btn text small", T("today")); tb.type = "button"; tb.onclick = function () { addDay = null; delK = null; render(); }; wrap.appendChild(tb); }
-    dr.appendChild(wrap); card.appendChild(dr);
-    var top = e("div", "prog-top"); top.style.marginTop = "10px";
-    top.appendChild(e("span", null, daysAgo(day) === 0 ? T("today") : agoText(daysAgo(day))));
-    top.appendChild(e("span", null, revCnt(ents.length)));
-    card.appendChild(top); main.appendChild(card);
-
-    var grid = e("div", "grid"), juzs = [];
-    hz.forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
-    juzs.forEach(function (j) {
-      var g = e("div", "grp-h"); g.appendChild(e("span", null, juzN(j))); grid.appendChild(g);
-      hz.filter(function (x) { return juzOf(x) === j; }).forEach(function (h) { grid.appendChild(row(h, ents)); });
-    });
-    main.appendChild(grid);
-    main.appendChild(e("p", "note", T("noteAdd")));
-    var hd = e("div", "dayh"); hd.appendChild(e("span", null, T("loggedDay"))); main.appendChild(hd);
-    if (!ents.length) main.appendChild(e("p", "note", T("noneDay")));
-    ents.forEach(function (x) { main.appendChild(entryLine(x, true)); });
+  function pastSheet(sh) {
+    sh.appendChild(e("h2", null, T("pastT")));
+    var list = e("div", "list");
+    var dr = e("div", "dateRow"); dr.appendChild(e("label", null, T("revDay"))); dr.firstChild.setAttribute("for", "past-day");
+    var di = e("input"); di.type = "date"; di.id = "past-day"; di.value = pastDay; var y = new Date(); y.setDate(y.getDate() - 1); di.max = dayKey(y.getTime());
+    di.addEventListener("change", function () { if (di.value && di.value <= di.max) pastDay = di.value; render(); });
+    dr.appendChild(di); list.appendChild(dr);
+    list.appendChild(e("p", "note", T("pastPick")));
+    var w = e("div", "wrapchips");
+    tracked().forEach(function (h) { var c = e("button", "fchip", chipN(h)); c.type = "button"; c.onclick = function () { addDay = pastDay; revH = h; revL = null; revW = ""; sheetMode = "rev"; render(); }; w.appendChild(c); });
+    list.appendChild(w); sh.appendChild(list);
+    var ft = e("div", "foot"), cn = e("button", "btn text", T("cancel")); cn.type = "button"; cn.onclick = closeSheet; ft.appendChild(cn); sh.appendChild(ft);
   }
-
-  function row(h, ents) {
-    var mine = ents.filter(function (x) { return x.h === h; }), last = mine.length ? mine[0] : null, l = last ? last.l : null;
-    var cell = e("div", "rcell"), r = e("div", "row");
-    r.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
-    r.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
-    if (l !== null) { r.style.background = "var(--t" + l + ")"; r.style.borderColor = "var(--c" + l + ")"; }
-    var m = e("button", "main"); m.type = "button"; m.onclick = function () { revH = h; revL = null; sheetMode = "rev"; render(); setTimeout(function () { var i = $("#rev-w"); if (i && !("ontouchstart" in window)) i.focus(); }, 0); };
-    m.appendChild(meter(l));
-    var lab = e("span", "lab"); lab.appendChild(e("b", null, hizbN(h)));
-    lab.appendChild(e("small", null, last ? (mine.length > 1 ? (ar() ? (mine.length === 2 ? "مرتان" : dg(mine.length) + " مرات") : "×" + mine.length) + " · " : "") + lvPct(l) : T("tapToMark")));
-    m.appendChild(lab); r.appendChild(m); cell.appendChild(r);
-    return cell;
-  }
-
   function revSheet(sh) {
     var day = addDay || todayKey();
-    sh.appendChild(e("h2", null, hizbN(revH) + " — " + (daysAgo(day) === 0 ? T("today") : dayLabel(day))));
+    sh.appendChild(e("h2", null, hizbN(revH)));
     var list = e("div", "list");
+    var dr = e("div", "dateRow"); dr.appendChild(e("label", null, T("revDay"))); dr.firstChild.setAttribute("for", "rev-day");
+    var dw = e("div", "dwrap"), di = e("input"); di.type = "date"; di.id = "rev-day"; di.value = day; di.max = todayKey();
+    di.addEventListener("change", function () { var w0 = $("#rev-w"); if (w0) revW = w0.value; var v = di.value; addDay = (v && v <= todayKey() && v !== todayKey()) ? v : null; render(); });
+    dw.appendChild(di);
+    if (day !== todayKey()) { var tb = e("button", "btn text small", T("today")); tb.type = "button"; tb.onclick = function () { var w0 = $("#rev-w"); if (w0) revW = w0.value; addDay = null; render(); }; dw.appendChild(tb); }
+    dr.appendChild(dw); list.appendChild(dr);
     list.appendChild(e("div", "set-t", T("chooseLvl")));
     var lw = e("div", "lvgrid");
     for (var i = 0; i < 4; i++) (function (i) {
@@ -677,15 +752,7 @@ main { gap: 8px; padding-top: 2px; }
     order.forEach(function (day) {
       var es = dayEntries(day);
       var head = e("div", "dayh"); head.appendChild(e("span", null, dayLabel(day))); head.appendChild(e("small", null, revCnt(es.length))); main.appendChild(head);
-      es.forEach(function (x) {
-        var b = e("button", "lrow"); b.type = "button";
-        var pc = e("span", "lpct", lvPct(x.l)); pc.style.background = "var(--c" + x.l + ")"; pc.style.color = LX[x.l]; b.appendChild(pc);
-        var tx = e("span", "ltx"); tx.appendChild(e("b", null, hizbN(x.h)));
-        if (x.w) tx.appendChild(e("small", null, T("weakPages") + ": " + x.w));
-        b.appendChild(tx);
-        b.onclick = function () { addDay = day === todayKey() ? null : day; delK = null; tab = "add"; render(); window.scrollTo(0, 0); };
-        main.appendChild(b);
-      });
+      es.forEach(function (x) { main.appendChild(entryLine(x, true)); });
     });
     main.appendChild(e("p", "note", T("logTap")));
   }
@@ -711,16 +778,19 @@ main { gap: 8px; padding-top: 2px; }
   }
 
   function addSheet(sh, keepTop) {
-    sh.appendChild(e("h2", null, T("addTitle")));
+    sh.appendChild(e("h2", null, addTitleT()));
     var list = e("div", "list");
     for (var j = 1; j <= 30; j++) (function (j) {
-      var a = 2 * j - 1, b = 2 * j, both = isT(a) && isT(b);
+      if (st.unit === "juz" && j > 1) return;
+      var items = []; if (st.unit === "juz") { for (var q = 1; q <= 30; q++) items.push(q); } else items = itemsInJuz(j);
+      var all = items.every(isT);
       var it = e("div", "item"), hd = e("div", "item-h");
-      hd.appendChild(e("b", null, juzN(j)));
-      var tb = e("button", "btn text", both ? T("removeBoth") : T("addBoth")); tb.type = "button"; tb.onclick = function () { setJuz(j, !both); }; hd.appendChild(tb);
-      it.appendChild(hd);
+      hd.appendChild(e("b", null, st.unit === "juz" ? T("u_juz") : juzN(j)));
+      var tb = e("button", "btn text", all ? T("removeBoth") : T("addBoth")); tb.type = "button";
+      tb.onclick = function () { items.forEach(function (h) { var i = st.tracked.indexOf(h); if (!all && i < 0) st.tracked.push(h); if (all && i >= 0) st.tracked.splice(i, 1); }); save(); render(); };
+      hd.appendChild(tb); it.appendChild(hd);
       var w = e("div", "wrapchips");
-      [a, b].forEach(function (h) { var c = e("button", "fchip", hizbN(h)); c.type = "button"; c.setAttribute("aria-pressed", String(isT(h))); c.onclick = function () { toggleHizb(h); }; w.appendChild(c); });
+      items.forEach(function (h) { var c = e("button", "fchip", chipN(h)); c.type = "button"; c.setAttribute("aria-pressed", String(isT(h))); c.onclick = function () { toggleHizb(h); }; w.appendChild(c); });
       it.appendChild(w); list.appendChild(it);
     })(j);
     sh.appendChild(list); list.scrollTop = keepTop;
@@ -779,6 +849,8 @@ main { gap: 8px; padding-top: 2px; }
     sh.appendChild(e("h2", null, T("settings")));
     var list = e("div", "list");
     list.appendChild(seg(T("langT"), [["ar", "العربية"], ["en", "English"]], st.lang, function (v) { st.lang = v; }));
+    list.appendChild(seg(T("unitT"), UK.map(function (k) { return [k, T("u_" + k)]; }), st.unit, function (v) { st.unit = v; slot(st); revH = null; delK = null; }, "two"));
+    list.appendChild(e("p", "note", T("unitNote")));
     list.appendChild(seg(T("textSize"), [[0, T("size0")], [1, T("size1")], [2, T("size2")]], st.size, function (v) { st.size = v; }, "", [15, 18, 22]));
     list.appendChild(seg(T("style"), SK.map(function (k) { return [k, T("s_" + k)]; }), st.skin, function (v) { st.skin = v; }, "two"));
     sh.appendChild(list); doneFoot(sh);
@@ -791,6 +863,7 @@ main { gap: 8px; padding-top: 2px; }
     if (!sheetMode) return;
     if (sheetMode === "add") addSheet(sh, keepTop);
     else if (sheetMode === "rev") revSheet(sh);
+    else if (sheetMode === "past") pastSheet(sh);
     else if (sheetMode === "profiles") { profilesSheet(sh); var l2 = sh.querySelector(".list"); if (l2) l2.scrollTop = keepTop; }
     else settingsSheet(sh);
   }
@@ -801,7 +874,7 @@ main { gap: 8px; padding-top: 2px; }
   $("#fab").onclick = openSheet;
 
   function render() {
-    if (tab !== "ov" && tab !== "add" && tab !== "log") tab = "ov";
+    if (tab !== "ov" && tab !== "log") tab = "ov";
     var root = document.documentElement;
     root.lang = st.lang; root.dir = ar() ? "rtl" : "ltr";
     if (st.skin === "classic") root.removeAttribute("data-skin"); else root.setAttribute("data-skin", st.skin);
@@ -811,7 +884,7 @@ main { gap: 8px; padding-top: 2px; }
     $("#gear").setAttribute("aria-label", T("settings")); $("#gear").title = T("settings");
     renderTabs();
     var main = $("#main"); main.textContent = "";
-    if (tab === "ov") overview(main); else if (tab === "add") addView(main); else logView(main);
+    if (tab === "ov") overview(main); else logView(main);
     var fab = $("#fab"); fab.hidden = tab !== "ov"; fab.textContent = "+ " + T("addHizb");
     renderSheet();
   }
