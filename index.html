@@ -351,6 +351,21 @@ main { gap: 8px; padding-top: 2px; }
 .rstat.r1 i { opacity: .7; } .rstat.r2 i { opacity: .45; } .rstat.r3 i { background: var(--err); opacity: 1; }
 .rstat.r3 b { color: var(--err); }
 .rstat small { white-space: normal; }
+.hint { display: flex; align-items: center; gap: 10px; padding: 8px 6px 8px 12px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent); color: var(--fg); }
+.hint svg { flex: none; color: var(--accent); }
+.hint .ht { flex: 1; font-size: calc(13px * var(--fs, 1)); line-height: 1.35; }
+.hint .minus { margin: 0; flex: none; }
+.sharebtn { width: 100%; margin-top: 14px; color: var(--accent); font-weight: 700; }
+.okmsg { color: var(--accent); font-weight: 600; overflow-wrap: anywhere; }
+.pastebox { width: 100%; min-height: 90px; resize: vertical; margin: 8px 0; font-size: calc(13px * var(--fs, 1)); direction: ltr; text-align: left; }
+.hint .btn.small { flex: none; }
+.segw.sub { margin-top: 8px; }
+.segw.sub .seg { min-height: 44px; border-style: dashed; }
+.segw.sub .seg[aria-pressed="true"] { border-style: solid; }
+.lrow.static { gap: 4px; padding-inline-end: 4px; }
+.lmain { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; background: none; border: 0; font: inherit; color: inherit; text-align: start; padding: 0; cursor: pointer; min-height: 40px; }
+.lmain .ltx { flex: 1; min-width: 0; }
+.lpen { color: var(--muted); font-size: calc(14px * var(--fs, 1)); flex: none; }
 </style>
 </head>
 <body>
@@ -369,13 +384,15 @@ main { gap: 8px; padding-top: 2px; }
 (function () {
   var EN = {
     appTitle: "Hifz Revision Log", overview: "My Hifz", addPast: "Add revision", gradeT: "Grade", lastT: "Last revised", r0: "Today", r1: "1–3 days", r2: "4–6 days", r3: "Overdue", pastT: "Add a past revision", pastPick: "Choose the day, then the item you revised.", sLatest: "Latest", sGrade: "Grade", sortBy: "Sort by", addRev: "Add a revision", history: "History", addHizb: "Add memorised",
-    fAll: "All", fWeak: "Weak", fLate: "Overdue", fNone: "Nothing matches this filter.", unitT: "Hifz unit", unitNote: "Each unit keeps its own list and revisions.", u_page: "Page", u_rub: "Quarter of a hizb", u_hizb: "Hizb", u_juz: "Juz", addBoth: "Add all", removeBoth: "Remove all", done: "Done", cancel: "Cancel", del: "Delete",
+    fAll: "All", fWeak: "Weak", fLate: "Overdue", fNone: "Nothing matches this filter.", backupT: "Backup", backupBtn: "Backup", restoreBtn: "Restore", exportBtn: "Save as a file", importBtn: "From a file", sendMsg: "Send as a message", pasteBtn: "From a message", pastePh: "Paste the backup message here", copiedBk: "Backup copied. Paste it into WhatsApp.", msgHead: "Hifz Revision Log backup. To restore: Settings → Restore → From a message, then paste all of this.", installIt: "Install the app for full-screen and offline use.", installB: "Install", backupNote: "A backup file includes everyone on this device. Restoring replaces what is on this device.", saved: "Backup saved.", impBad: "That file is not a valid backup.", impAsk: "Replace everything on this device with this backup?", impDone: "Backup restored.", replaceB: "Replace",
+    shareApp: "Share and earn the reward", shareText: "📖 A free app to help you memorise and revise the Quran. No sign-up, and it works offline. Share it with others and earn the reward: “Whoever guides to something good will have a reward like the one who does it.” (Muslim)", linkCopied: "Link copied.", iosHint: "Install it: tap the Share button, then “Add to Home Screen”.", closeB: "Close",
+    unitT: "Hifz unit", unitNote: "Each unit keeps its own list and revisions.", u_surah: "Surah", u_page: "Page", u_rub: "Quarter of a hizb", u_hizb: "Hizb", u_juz: "Juz", addBoth: "Add all", removeBoth: "Remove all", done: "Done", cancel: "Cancel", del: "Delete",
     emptyTitle: "Nothing added yet", emptyBody: "Add what you have memorised, then mark what you revise each day.",
     tapToMark: "Tap to mark", lower: "Lower", weakPages: "Weak pages",
     notRevised: "Not revised yet", today: "Today", yesterday: "Yesterday", revDay: "Revision day", addRevBtn: "Add revision", chooseLvl: "How well did you revise it?", loggedDay: "Logged this day", noneDay: "Nothing logged for this day yet.", delQ: "Delete?",
     noteOv: "Each box shows the average of its last 3 revisions and how long ago you last revised it. Tap a box to log a revision right away.",
      noteAdd: "Tap a box, choose how well you revised it and add it. Every time you add, it is saved as a new revision, so you can add the same one more than once a day.",
-    logEmpty: "No revisions yet. Tap a box in My Hifz to log your first one.", logTap: "Tap × to delete an entry added by mistake.",
+    logEmpty: "No revisions yet. Tap a box in My Hifz to log your first one.", logTap: "Tap an entry to edit it, or × to delete it.", editT: "Edit revision", saveB: "Save changes", prefillNote: "Taken from your last revision. Delete what you have fixed.",
     demoSeed: "Load sample data (demo only)",
     preview: "Your marks are saved on this device only.",
     profiles: "Who is using the app?", addPerson: "Add a person", namePh: "Name", edit: "Edit", save: "Save",
@@ -385,13 +402,15 @@ main { gap: 8px; padding-top: 2px; }
   };
   var AR = {
     appTitle: "سجل مراجعة الحفظ", overview: "حفظي", addPast: "إضافة مراجعة", gradeT: "التقدير", lastT: "آخر مراجعة", r0: "اليوم", r1: "١–٣ أيام", r2: "٤–٦ أيام", r3: "متأخر", pastT: "إضافة مراجعة سابقة", pastPick: "اختر اليوم، ثم ما راجعته.", sLatest: "الأحدث", sGrade: "التقدير", sortBy: "ترتيب حسب", addRev: "تسجيل مراجعة", history: "السجل", addHizb: "إضافة محفوظ",
-    fAll: "الكل", fWeak: "ضعيف", fLate: "متأخر", fNone: "لا يوجد ما يطابق هذا الفلتر.", unitT: "وحدة الحفظ", unitNote: "لكل وحدة قائمتها ومراجعاتها الخاصة.", u_page: "صفحة", u_rub: "ربع حزب", u_hizb: "حزب", u_juz: "جزء", addBoth: "إضافة الكل", removeBoth: "إزالة الكل", done: "تم", cancel: "إلغاء", del: "حذف",
+    fAll: "الكل", fWeak: "ضعيف", fLate: "متأخر", fNone: "لا يوجد ما يطابق هذا الفلتر.", backupT: "النسخ الاحتياطي", backupBtn: "نسخ احتياطي", restoreBtn: "استعادة", exportBtn: "حفظ كملف", importBtn: "من ملف", sendMsg: "إرسال كرسالة", pasteBtn: "من رسالة", pastePh: "الصق رسالة النسخة هنا", copiedBk: "تم نسخ النسخة. الصقها في واتساب.", msgHead: "نسخة احتياطية لتطبيق سجل مراجعة الحفظ. للاستعادة: الإعدادات ← استعادة ← من رسالة، ثم الصق هذه الرسالة كاملة.", installIt: "ثبّت التطبيق ليعمل بملء الشاشة ودون إنترنت.", installB: "تثبيت", backupNote: "تشمل النسخة جميع الأشخاص على هذا الجهاز. الاستعادة تستبدل ما هو موجود على هذا الجهاز.", saved: "تم حفظ النسخة.", impBad: "هذا الملف ليس نسخة احتياطية صالحة.", impAsk: "هل تريد استبدال كل ما على هذا الجهاز بهذه النسخة؟", impDone: "تمت استعادة النسخة.", replaceB: "استبدال",
+    shareApp: "شارك واكسب الأجر", shareText: "📖 تطبيق مجاني يعينك على حفظ القرآن ومراجعته، بلا تسجيل ويعمل دون إنترنت. شاركه مع غيرك واكسب الأجر: «مَن دَلَّ على خيرٍ فله مثلُ أجرِ فاعله» (رواه مسلم).", linkCopied: "تم نسخ الرابط.", iosHint: "لتثبيت التطبيق: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».", closeB: "إغلاق",
+    unitT: "وحدة الحفظ", unitNote: "لكل وحدة قائمتها ومراجعاتها الخاصة.", u_surah: "سورة", u_page: "صفحة", u_rub: "ربع حزب", u_hizb: "حزب", u_juz: "جزء", addBoth: "إضافة الكل", removeBoth: "إزالة الكل", done: "تم", cancel: "إلغاء", del: "حذف",
     emptyTitle: "لم تُضف شيئًا بعد", emptyBody: "أضف ما حفظته، ثم سجّل ما تراجعه كل يوم.",
     tapToMark: "اضغط للتقييم", lower: "خفض", weakPages: "الصفحات الضعيفة",
     notRevised: "لم تُراجع بعد", today: "اليوم", yesterday: "أمس", revDay: "يوم المراجعة", addRevBtn: "إضافة المراجعة", chooseLvl: "كيف كانت مراجعتك؟", loggedDay: "المسجَّل في هذا اليوم", noneDay: "لم تُسجَّل أي مراجعة في هذا اليوم بعد.", delQ: "حذف؟",
     noteOv: "يعرض كل مربع متوسط آخر ٣ مراجعات له، وكم مضى على آخر مراجعة. اضغط على المربع لتسجيل مراجعة مباشرة.",
      noteAdd: "اضغط على المربع، واختر مستوى مراجعتك، ثم أضِفها. كل إضافة تُحفظ كمراجعة جديدة، فيمكنك إضافة العنصر نفسه أكثر من مرة في اليوم.",
-    logEmpty: "لا توجد مراجعات بعد. اضغط على مربع في حفظي لتسجيل أول مراجعة.", logTap: "اضغط × لحذف إدخال أُضيف بالخطأ.",
+    logEmpty: "لا توجد مراجعات بعد. اضغط على مربع في حفظي لتسجيل أول مراجعة.", logTap: "اضغط على أي مراجعة لتعديلها، أو × لحذفها.", editT: "تعديل المراجعة", saveB: "حفظ التعديلات", prefillNote: "مأخوذة من آخر مراجعة. احذف ما أتقنته.",
     demoSeed: "تحميل بيانات تجريبية (للعرض فقط)",
     preview: "تُحفظ تقييماتك على هذا الجهاز فقط.",
     profiles: "من يستخدم التطبيق؟", addPerson: "إضافة شخص", namePh: "الاسم", edit: "تعديل", save: "حفظ",
@@ -406,6 +425,7 @@ main { gap: 8px; padding-top: 2px; }
   var LX = ["#ffffff", "#1b0f00", "#1b1600", "#ffffff"];
   var AVC = ["#2c4691", "#2f9455", "#d9731a", "#8a4fbf", "#c93a47", "#0f8b8d"];
   var db = null, st = null;
+  var revEdit = null, revWT = false, impMsg = "", impPend = null, installEv = null, pasteOpen = false, pasteTxt = "", bkOpen = null, hintGone = false; try { hintGone = localStorage.getItem("hifz-hint") === "1"; } catch (x) {}
   var tab = "ov", addDay = null, revH = null, revL = null, gF = null, tF = null, pastDay = null, revW = "", delK = null, sheetMode = null, editingId = null, delPersonArmed = false, delArmed = false;
 
   function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -415,7 +435,15 @@ main { gap: 8px; padding-top: 2px; }
   function dayNum(k) { var q = k.split("-"); return Date.UTC(+q[0], +q[1] - 1, +q[2]) / 86400000; }
   function daysAgo(k) { return Math.max(0, Math.round(dayNum(todayKey()) - dayNum(k))); }
 
-  var UK = ["page", "rub", "hizb", "juz"], UMAX = { page: 604, rub: 240, hizb: 60, juz: 30 };
+  var UK = ["surah", "page", "rub", "hizb", "juz"], UMAX = { surah: 114, page: 604, rub: 240, hizb: 60, juz: 30 };
+  var SN_AR = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
+  var SN_EN = ["Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Tawbah", "Yunus", "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra", "Al-Kahf", "Maryam", "Ta-Ha", "Al-Anbiya", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Ash-Shu'ara", "An-Naml", "Al-Qasas", "Al-'Ankabut", "Ar-Rum", "Luqman", "As-Sajdah", "Al-Ahzab", "Saba", "Fatir", "Ya-Sin", "As-Saffat", "Sad", "Az-Zumar", "Ghafir", "Fussilat", "Ash-Shura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jathiyah", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf", "Adh-Dhariyat", "At-Tur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadilah", "Al-Hashr", "Al-Mumtahanah", "As-Saff", "Al-Jumu'ah", "Al-Munafiqun", "At-Taghabun", "At-Talaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij", "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddaththir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat", "An-Naba", "An-Nazi'at", "'Abasa", "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Inshiqaq", "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Ghashiyah", "Al-Fajr", "Al-Balad", "Ash-Shams", "Al-Layl", "Ad-Duha", "Ash-Sharh", "At-Tin", "Al-'Alaq", "Al-Qadr", "Al-Bayyinah", "Az-Zalzalah", "Al-'Adiyat", "Al-Qari'ah", "At-Takathur", "Al-'Asr", "Al-Humazah", "Al-Fil", "Quraysh", "Al-Ma'un", "Al-Kawthar", "Al-Kafirun", "An-Nasr", "Al-Masad", "Al-Ikhlas", "Al-Falaq", "An-Nas"];
+  // The juz in which each surah begins (used to group the list), worked out from where each juz starts.
+  var SURAH_JUZ = (function () {
+    var out = [0], sU, a, j, n;
+    for (n = 1; n <= 114; n++) { var c = 0; for (j = 0; j < 30; j++) { sU = +STARTS[j].split(":")[0]; a = +STARTS[j].split(":")[1]; if (sU < n || (sU === n && a <= 1)) c++; } out.push(c); }
+    return out;
+  })();
   function slot(p) { return p.u[p.unit] || (p.u[p.unit] = { tracked: [], rev: {} }); }
   // tracked and rev always mean "for the unit chosen now"; each unit keeps its own copy inside p.u.
   function wire(p) {
@@ -503,26 +531,28 @@ main { gap: 8px; padding-top: 2px; }
   var lvPct = function (l) { return pct((l + 1) * 25); };
   var juzOf = function (h) {
     var u = st.unit;
-    return u === "page" ? (h <= 21 ? 1 : Math.min(30, Math.floor((h - 2) / 20) + 1)) : u === "rub" ? Math.ceil(h / 8) : u === "juz" ? h : (h + 1) >> 1;
+    return u === "surah" ? SURAH_JUZ[h] : u === "page" ? (h <= 21 ? 1 : Math.min(30, Math.floor((h - 2) / 20) + 1)) : u === "rub" ? Math.ceil(h / 8) : u === "juz" ? h : (h + 1) >> 1;
   };
   function itemsInJuz(j) {
     var out = [], a, b, i;
     if (st.unit === "page") { a = j === 1 ? 1 : 20 * (j - 1) + 2; b = j === 30 ? 604 : 20 * j + 1; }
     else if (st.unit === "rub") { a = 8 * (j - 1) + 1; b = 8 * j; }
     else if (st.unit === "juz") { a = j; b = j; }
+    else if (st.unit === "surah") { for (i = 1; i <= 114; i++) if (SURAH_JUZ[i] === j) out.push(i); return out; }
     else { a = 2 * j - 1; b = 2 * j; }
     for (i = a; i <= b; i++) out.push(i); return out;
   }
   var hizbN = function (h) {
     var u = st.unit;
+    if (u === "surah") return ar() ? "سورة " + SN_AR[h - 1] : "Surah " + SN_EN[h - 1];
     if (u === "page") return ar() ? "صفحة " + dg(h) : "Page " + h;
     if (u === "juz") return ar() ? "الجزء " + dg(h) : "Juz " + h;
     if (u === "rub") { var hz = Math.ceil(h / 4), q = (h - 1) % 4 + 1; return ar() ? "الحزب " + dg(hz) + " - الربع " + dg(q) : "Hizb " + hz + " · Q" + q; }
     return ar() ? "الحزب " + dg(h) : "Hizb " + h;
   };
-  var chipN = function (h) { return st.unit === "page" ? dg(h) : hizbN(h); };
+  var chipN = function (h) { return st.unit === "page" ? dg(h) : st.unit === "surah" ? dg(h) + ". " + (ar() ? SN_AR[h - 1] : SN_EN[h - 1]) : hizbN(h); };
   function addTitleT() {
-    var pl = { page: ["الصفحات", "pages"], rub: ["الأرباع", "quarters of a hizb"], hizb: ["الأحزاب", "hizbs"], juz: ["الأجزاء", "juz"] }[st.unit];
+    var pl = { surah: ["السور", "surahs"], page: ["الصفحات", "pages"], rub: ["الأرباع", "quarters of a hizb"], hizb: ["الأحزاب", "hizbs"], juz: ["الأجزاء", "juz"] }[st.unit];
     return ar() ? "اختر " + pl[0] + " التي حفظتها" : "Choose the " + pl[1] + " you have memorised";
   }
   var juzN = function (j) { return ar() ? "الجزء " + dg(j) : "Juz " + j; };
@@ -664,7 +694,7 @@ main { gap: 8px; padding-top: 2px; }
     card.style.setProperty("--lc", l === null ? "var(--line)" : "var(--c" + l + ")");
     card.style.setProperty("--lx", l === null ? "var(--fg)" : LX[l]);
     card.classList.add("tap"); card.tabIndex = 0; card.setAttribute("role", "button"); card.setAttribute("aria-label", hizbN(h) + " — " + T("addRevBtn"));
-    var open = function () { addDay = null; revH = h; revL = null; revW = ""; sheetMode = "rev"; render(); };
+    var open = function () { openRev(h, null); };
     card.onclick = open; card.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); open(); } });
     var top = e("div", "tile-top"); top.appendChild(e("b", null, hizbN(h)));
     var p = e("span", "pips"); for (var i = 0; i < 3; i++) p.appendChild(e("i", "pip" + (q && i < q.n ? " on" : ""))); top.appendChild(p);
@@ -678,12 +708,27 @@ main { gap: 8px; padding-top: 2px; }
     return card;
   }
 
+  function latestWeak(h, day) {
+    var best = null;
+    Object.keys(st.rev).forEach(function (k) {
+      var q = parseK(k); if (q.h !== h || q.day > day) return;
+      var t = st.rev[k].t || 0;
+      if (!best || q.day > best.day || (q.day === best.day && (q.n > best.n || (q.n === best.n && t > best.t)))) best = { day: q.day, n: q.n, t: t, w: st.rev[k].w || "" };
+    });
+    return best ? best.w : "";
+  }
+  function openRev(h, day) { addDay = day; revH = h; revL = null; revEdit = null; revWT = false; revW = latestWeak(h, day || todayKey()); sheetMode = "rev"; render(); }
+  function editEntry(k) {
+    var q = parseK(k), en = st.rev[k]; if (!en) return;
+    revEdit = k; revH = q.h; revL = en.l; revW = en.w || ""; revWT = true; addDay = q.day === todayKey() ? null : q.day; sheetMode = "rev"; render();
+  }
   function entryLine(x, withDel) {
     var b = e("div", "lrow static");
-    var pc = e("span", "lpct", lvPct(x.l)); pc.style.background = "var(--c" + x.l + ")"; pc.style.color = LX[x.l]; b.appendChild(pc);
+    var m = e("button", "lmain"); m.type = "button"; m.setAttribute("aria-label", T("editT") + " — " + hizbN(x.h)); m.onclick = function () { delK = null; editEntry(x.k); };
+    var pc = e("span", "lpct", lvPct(x.l)); pc.style.background = "var(--c" + x.l + ")"; pc.style.color = LX[x.l]; m.appendChild(pc);
     var tx = e("span", "ltx"); tx.appendChild(e("b", null, hizbN(x.h)));
     if (x.w) tx.appendChild(e("small", null, T("weakPages") + ": " + x.w));
-    b.appendChild(tx);
+    m.appendChild(tx); m.appendChild(e("span", "lpen", "✎")); b.appendChild(m);
     if (withDel) {
       if (delK === x.k) {
         var no = e("button", "btn text small", T("cancel")); no.type = "button"; no.onclick = function () { delK = null; render(); };
@@ -705,19 +750,19 @@ main { gap: 8px; padding-top: 2px; }
     dr.appendChild(di); list.appendChild(dr);
     list.appendChild(e("p", "note", T("pastPick")));
     var w = e("div", "wrapchips");
-    tracked().forEach(function (h) { var c = e("button", "fchip", chipN(h)); c.type = "button"; c.onclick = function () { addDay = pastDay; revH = h; revL = null; revW = ""; sheetMode = "rev"; render(); }; w.appendChild(c); });
+    tracked().forEach(function (h) { var c = e("button", "fchip", chipN(h)); c.type = "button"; c.onclick = function () { openRev(h, pastDay); }; w.appendChild(c); });
     list.appendChild(w); sh.appendChild(list);
     var ft = e("div", "foot"), cn = e("button", "btn text", T("cancel")); cn.type = "button"; cn.onclick = closeSheet; ft.appendChild(cn); sh.appendChild(ft);
   }
   function revSheet(sh) {
     var day = addDay || todayKey();
-    sh.appendChild(e("h2", null, hizbN(revH)));
+    sh.appendChild(e("h2", null, (revEdit ? T("editT") + " — " : "") + hizbN(revH)));
     var list = e("div", "list");
     var dr = e("div", "dateRow"); dr.appendChild(e("label", null, T("revDay"))); dr.firstChild.setAttribute("for", "rev-day");
     var dw = e("div", "dwrap"), di = e("input"); di.type = "date"; di.id = "rev-day"; di.value = day; di.max = todayKey();
-    di.addEventListener("change", function () { var w0 = $("#rev-w"); if (w0) revW = w0.value; var v = di.value; addDay = (v && v <= todayKey() && v !== todayKey()) ? v : null; render(); });
+    di.addEventListener("change", function () { var w0 = $("#rev-w"); if (w0) revW = w0.value; var v = di.value; addDay = (v && v <= todayKey() && v !== todayKey()) ? v : null; if (!revWT && !revEdit) revW = latestWeak(revH, addDay || todayKey()); render(); });
     dw.appendChild(di);
-    if (day !== todayKey()) { var tb = e("button", "btn text small", T("today")); tb.type = "button"; tb.onclick = function () { var w0 = $("#rev-w"); if (w0) revW = w0.value; addDay = null; render(); }; dw.appendChild(tb); }
+    if (day !== todayKey()) { var tb = e("button", "btn text small", T("today")); tb.type = "button"; tb.onclick = function () { var w0 = $("#rev-w"); if (w0) revW = w0.value; addDay = null; if (!revWT && !revEdit) revW = latestWeak(revH, todayKey()); render(); }; dw.appendChild(tb); }
     dr.appendChild(dw); list.appendChild(dr);
     list.appendChild(e("div", "set-t", T("chooseLvl")));
     var lw = e("div", "lvgrid");
@@ -729,14 +774,26 @@ main { gap: 8px; padding-top: 2px; }
     list.appendChild(lw);
     list.appendChild(e("div", "set-t", T("weakPages")));
     var wi = e("input", "pin"); wi.type = "text"; wi.id = "rev-w"; wi.placeholder = T("weakPages"); wi.value = revW; wi.setAttribute("autocomplete", "off"); wi.style.width = "100%";
-    wi.addEventListener("input", function () { revW = wi.value; });
+    wi.addEventListener("input", function () { revW = wi.value; revWT = true; var pn = $("#prefill-note"); if (pn) pn.remove(); });
     wi.addEventListener("keydown", function (ev) { if (ev.key === "Enter") submit(); });
-    list.appendChild(wi); sh.appendChild(list);
+    list.appendChild(wi);
+    if (!revEdit && !revWT && revW) { var pn = e("p", "note", T("prefillNote")); pn.id = "prefill-note"; list.appendChild(pn); }
+    sh.appendChild(list);
     var ft = e("div", "foot");
-    var ok = e("button", "btn filled", T("addRevBtn")); ok.type = "button"; ok.disabled = revL === null; ok.onclick = submit; ft.appendChild(ok);
+    var ok = e("button", "btn filled", revEdit ? T("saveB") : T("addRevBtn")); ok.type = "button"; ok.disabled = revL === null; ok.onclick = submit; ft.appendChild(ok);
     var cn = e("button", "btn text", T("cancel")); cn.type = "button"; cn.onclick = closeSheet; ft.appendChild(cn);
     sh.appendChild(ft);
-    function submit() { if (revL === null) return; addEntry(day, revH, revL, revW.trim().slice(0, 200)); revW = ""; revL = null; closeSheet(); }
+    function submit() {
+      if (revL === null) return;
+      var w = revW.trim().slice(0, 200);
+      if (revEdit) {
+        var old = parseK(revEdit), oen = st.rev[revEdit] || {}, t = oen.t || Date.now();
+        if (day === old.day) st.rev[revEdit] = { l: revL, w: w, t: t };
+        else { delete st.rev[revEdit]; st.rev[ek(day, revH, nextN(day, revH))] = { l: revL, w: w, t: t }; }
+        save();
+      } else addEntry(day, revH, revL, w);
+      revW = ""; revL = null; closeSheet();
+    }
   }
 
   function dayLabel(k) {
@@ -762,7 +819,7 @@ main { gap: 8px; padding-top: 2px; }
     var idx = db.profiles.indexOf(p), a = e("span", "av", (Array.from(dispName(p))[0] || "?").toUpperCase());
     a.style.background = AVC[(idx < 0 ? 0 : idx) % AVC.length]; return a;
   }
-  function closeSheet() { revW = ""; revL = null; sheetMode = null; editingId = null; delPersonArmed = false; render(); }
+  function closeSheet() { revEdit = null; revWT = false; impMsg = ""; impPend = null; bkOpen = null; pasteOpen = false; pasteTxt = ""; revW = ""; revL = null; sheetMode = null; editingId = null; delPersonArmed = false; render(); }
   function openSheet() { sheetMode = "add"; render(); }
   function switchTo(id) { for (var i = 0; i < db.profiles.length; i++) if (db.profiles[i].id === id) { st = db.profiles[i]; db.active = id; } tab = "ov"; delArmed = false; sheetMode = null; editingId = null; save(); render(); }
   function deletePerson(id) {
@@ -783,6 +840,7 @@ main { gap: 8px; padding-top: 2px; }
     for (var j = 1; j <= 30; j++) (function (j) {
       if (st.unit === "juz" && j > 1) return;
       var items = []; if (st.unit === "juz") { for (var q = 1; q <= 30; q++) items.push(q); } else items = itemsInJuz(j);
+      if (!items.length) return;
       var all = items.every(isT);
       var it = e("div", "item"), hd = e("div", "item-h");
       hd.appendChild(e("b", null, st.unit === "juz" ? T("u_juz") : juzN(j)));
@@ -853,7 +911,124 @@ main { gap: 8px; padding-top: 2px; }
     list.appendChild(e("p", "note", T("unitNote")));
     list.appendChild(seg(T("textSize"), [[0, T("size0")], [1, T("size1")], [2, T("size2")]], st.size, function (v) { st.size = v; }, "", [15, 18, 22]));
     list.appendChild(seg(T("style"), SK.map(function (k) { return [k, T("s_" + k)]; }), st.skin, function (v) { st.skin = v; }, "two"));
+    list.appendChild(e("div", "set-t", T("backupT")));
+    var bw = e("div", "segw two");
+    [["backup", T("backupBtn")], ["restore", T("restoreBtn")]].forEach(function (o) {
+      var bt = e("button", "seg", o[1]); bt.type = "button"; bt.setAttribute("aria-pressed", String(bkOpen === o[0]));
+      bt.onclick = function () { bkOpen = bkOpen === o[0] ? null : o[0]; pasteOpen = false; impMsg = ""; impPend = null; render(); }; bw.appendChild(bt);
+    });
+    list.appendChild(bw);
+    var fi = e("input"); fi.type = "file"; fi.accept = ".json,application/json"; fi.hidden = true;
+    fi.addEventListener("change", function () { if (fi.files && fi.files[0]) readBackup(fi.files[0]); });
+    list.appendChild(fi);
+    if (bkOpen) {
+      var ow = e("div", "segw two sub");
+      var mk = function (label, fn, on) { var b2 = e("button", "seg", label); b2.type = "button"; if (on) b2.setAttribute("aria-pressed", "true"); b2.onclick = fn; ow.appendChild(b2); };
+      if (bkOpen === "backup") { mk(T("sendMsg"), sendBackupMsg); mk(T("exportBtn"), exportBackup); }
+      else { mk(T("pasteBtn"), function () { pasteOpen = !pasteOpen; render(); }, pasteOpen); mk(T("importBtn"), function () { fi.value = ""; fi.click(); }); }
+      list.appendChild(ow);
+    }
+    list.appendChild(e("p", "note", T("backupNote")));
+    if (pasteOpen) {
+      var ta = e("textarea", "pin pastebox"); ta.placeholder = T("pastePh"); ta.value = pasteTxt; ta.rows = 4; ta.setAttribute("aria-label", T("pastePh"));
+      ta.addEventListener("input", function () { pasteTxt = ta.value; });
+      ta.addEventListener("paste", function () { setTimeout(function () { pasteTxt = ta.value; if (/HIFZ[01]:/.test(pasteTxt)) readPasted(); }, 0); });
+      list.appendChild(ta);
+      var go = e("button", "btn filled", ar() ? "استعادة" : "Restore"); go.type = "button"; go.onclick = function () { pasteTxt = ta.value; readPasted(); }; list.appendChild(go);
+    }
+    if (impPend) {
+      var cf = e("div", "confirm"); cf.appendChild(e("span", null, T("impAsk")));
+      var ac = e("div", "acts"), no = e("button", "btn text", T("cancel")); no.type = "button"; no.onclick = function () { impPend = null; render(); };
+      var yes = e("button", "btn text", T("replaceB")); yes.type = "button"; yes.style.color = "var(--err)"; yes.onclick = applyBackup;
+      ac.appendChild(no); ac.appendChild(yes); cf.appendChild(ac); list.appendChild(cf);
+    }
+    if (impMsg) { var mm = e("p", "note okmsg", impMsg); mm.setAttribute("role", "status"); list.appendChild(mm); }
+    if (installEv) { var ib = e("button", "seg sharebtn", T("installB")); ib.type = "button"; ib.onclick = doInstall; list.appendChild(ib); }
+    var sa = e("button", "seg sharebtn", "↗ " + T("shareApp")); sa.type = "button"; sa.onclick = shareApp; list.appendChild(sa);
     sh.appendChild(list); doneFoot(sh);
+  }
+
+  function exportBackup() {
+    var data = JSON.stringify({ app: "hifz-revision-log", v: 1, saved: new Date().toISOString(), data: db }), name = "hifz-backup-" + todayKey() + ".json", file = null;
+    function dl() {
+      var a = document.createElement("a"), url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      impMsg = T("saved"); render();
+    }
+    try { file = new File([data], name, { type: "application/json" }); } catch (x) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: name }).catch(function (err) { if (!err || err.name !== "AbortError") dl(); }); return; }
+    dl();
+  }
+  function takeBackup(o) {
+    var d = o && (o.data && o.data.profiles ? o.data : o.profiles ? o : null);
+    if (!d || !Array.isArray(d.profiles) || !d.profiles.length || d.profiles.length > 50) { impPend = null; impMsg = T("impBad"); render(); return; }
+    impPend = d; impMsg = ""; pasteOpen = false; render();
+  }
+  function readBackup(f) {
+    var r = new FileReader();
+    r.onload = function () { var o = null; try { o = JSON.parse(String(r.result)); } catch (x) {} takeBackup(o); };
+    r.onerror = function () { impMsg = T("impBad"); render(); };
+    r.readAsText(f);
+  }
+  // A backup message is "HIFZ1:" + base64 of gzipped JSON ("HIFZ0:" = not compressed), so it is short enough for WhatsApp.
+  function b64(bytes) { var s2 = "", i; for (i = 0; i < bytes.length; i += 8192) s2 += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192)); return btoa(s2); }
+  function unb64(t) { var bin = atob(t), out = new Uint8Array(bin.length), i; for (i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
+  function encodeBackup() {
+    var json = JSON.stringify({ app: "hifz-revision-log", v: 1, data: db }), raw = new TextEncoder().encode(json);
+    if (typeof CompressionStream === "undefined") return Promise.resolve("HIFZ0:" + b64(raw));
+    return new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer().then(function (buf) { return "HIFZ1:" + b64(new Uint8Array(buf)); });
+  }
+  function decodeBackup(txt) {
+    var m = /HIFZ([01]):([A-Za-z0-9+\/=]+)/.exec(txt || ""); if (!m) return Promise.reject(new Error("no code"));
+    var bytes = unb64(m[2]);
+    if (m[1] === "0") return Promise.resolve(JSON.parse(new TextDecoder().decode(bytes)));
+    if (typeof DecompressionStream === "undefined") return Promise.reject(new Error("unsupported"));
+    return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text().then(function (t) { return JSON.parse(t); });
+  }
+  function sendBackupMsg() {
+    encodeBackup().then(function (code) {
+      var msg = T("msgHead") + "\n\n" + code;
+      if (navigator.share) { navigator.share({ text: msg }).catch(function () {}); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(msg).then(function () { impMsg = T("copiedBk"); render(); }, function () { impMsg = T("impBad"); render(); });
+      else { impMsg = T("impBad"); render(); }
+    }, function () { impMsg = T("impBad"); render(); });
+  }
+  function readPasted() { decodeBackup(pasteTxt).then(takeBackup, function () { impPend = null; impMsg = T("impBad"); render(); }); }
+  function doInstall() {
+    var ev = installEv; if (!ev) return;
+    try { ev.prompt(); (ev.userChoice || Promise.resolve()).then(function () { installEv = null; render(); }); } catch (x) { installEv = null; render(); }
+  }
+  window.addEventListener("beforeinstallprompt", function (ev) { ev.preventDefault(); installEv = ev; render(); });
+  window.addEventListener("appinstalled", function () { installEv = null; hintGone = true; render(); });
+  function applyBackup() {
+    var d = impPend; if (!d) return;
+    try { localStorage.setItem("hifz-v3-before-import", JSON.stringify(db)); } catch (x) {}
+    db = { active: d.active, profiles: d.profiles.map(clean) };
+    st = findActive(); db.active = st.id; tab = "ov"; revH = null; delK = null; gF = null; tF = null; save();
+    impPend = null; impMsg = T("impDone"); render();
+  }
+  function shareApp() {
+    var url = location.href.split(/[?#]/)[0], data = { title: T("appTitle"), text: T("shareText"), url: url };
+    if (navigator.share) { navigator.share(data).catch(function () {}); return; }
+    var w = null; try { w = window.open("https://wa.me/?text=" + encodeURIComponent(data.text + " " + url), "_blank"); if (w) w.opener = null; } catch (x) {}
+    if (w) return;
+    function show(m) { impMsg = m; render(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { show(T("linkCopied")); }, function () { show(url); }); else show(url);
+  }
+  function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+  function hintOn() {
+    if (hintGone || !(DEMO || isIOS() || installEv)) return false;
+    try { if (navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches)) return false; } catch (x) {}
+    return true;
+  }
+  function hintEl() {
+    var h = e("div", "hint"); h.setAttribute("role", "note");
+    h.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+    h.appendChild(e("span", "ht", installEv ? T("installIt") : T("iosHint")));
+    if (installEv) { var ib = e("button", "btn filled small", T("installB")); ib.type = "button"; ib.onclick = doInstall; h.appendChild(ib); }
+    var x = e("button", "minus", "×"); x.type = "button"; x.setAttribute("aria-label", T("closeB")); x.title = T("closeB");
+    x.onclick = function () { hintGone = true; try { localStorage.setItem("hifz-hint", "1"); } catch (z) {} render(); };
+    h.appendChild(x); return h;
   }
 
   function renderSheet() {
@@ -884,6 +1059,7 @@ main { gap: 8px; padding-top: 2px; }
     $("#gear").setAttribute("aria-label", T("settings")); $("#gear").title = T("settings");
     renderTabs();
     var main = $("#main"); main.textContent = "";
+    if (tab === "ov" && hintOn()) main.appendChild(hintEl());
     if (tab === "ov") overview(main); else logView(main);
     var fab = $("#fab"); fab.hidden = tab !== "ov"; fab.textContent = "+ " + T("addHizb");
     renderSheet();
