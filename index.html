@@ -17,9 +17,23 @@
 body { margin: 0; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
+
+.coach { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.coach[hidden] { display: none; }
+.coach .cp { position: absolute; background: rgba(8,10,14,.78); pointer-events: auto; }
+.coach .cring { position: absolute; border: 3px dashed #ffd54a; border-radius: 16px; box-shadow: 0 0 0 4px rgba(255,213,74,.25); animation: cpulse 1.4s ease-in-out infinite; pointer-events: none; }
+@keyframes cpulse { 50% { transform: scale(1.03); opacity: .75; } }
+.coach .ctip { position: absolute; color: #fff7d6; pointer-events: none; font-family: "Caveat", "Playpen Sans Arabic", "Noto Naskh Arabic", cursive; font-size: 1.7rem; line-height: 1.25; text-align: center; }
+html[lang="ar"] .coach .ctip, .coach .ctip:lang(ar) { font-family: "Playpen Sans Arabic", "Noto Naskh Arabic", cursive; font-size: 1.2rem; line-height: 1.7; }
+.coach .carrow { color: #ffd54a; pointer-events: none; }
+.coach .ctext { text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.coach .cbtns { pointer-events: auto; display: flex; gap: 10px; justify-content: center; margin-top: 8px; font-family: system-ui, sans-serif; }
+.coach .cbtn { font: 600 14px system-ui, sans-serif; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.coach .cbtn.main { background: #ffd54a; color: #222; border-color: #ffd54a; }
+@media (prefers-reduced-motion: reduce) { .coach .cring { animation: none; } }
 </style>
 <title>Hifz Revision Log</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;700&family=Playpen+Sans+Arabic:wght@400;600&display=swap">
 <style>
 /* Layout: mirrors the Flutter app. Top bar with language switch, chip tabs, one scrolling body, add-hizb sheet. */
 :root {
@@ -366,12 +380,32 @@ main { gap: 8px; padding-top: 2px; }
 .lmain { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; background: none; border: 0; font: inherit; color: inherit; text-align: start; padding: 0; cursor: pointer; min-height: 40px; }
 .lmain .ltx { flex: 1; min-width: 0; }
 .lpen { color: var(--muted); font-size: calc(14px * var(--fs, 1)); flex: none; }
+.tourhd { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-inline-end: 12px; }
+.tourhd h2 { flex: 1; }
+.dots { display: flex; gap: 6px; justify-content: center; padding: 0 16px 6px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); width: 22px; border-radius: 99px; }
+.tourbody p { margin: 0 0 12px; line-height: 1.6; }
+.tourbody .tq { font-weight: 700; font-size: calc(16px * var(--fs, 1)); }
+.uopt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: start; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; cursor: pointer; min-height: 56px; }
+.uopt small { color: var(--muted); font-size: calc(12px * var(--fs, 1)); }
+.uopt[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.uopt[aria-pressed="true"] b { color: var(--accent); }
+.lvbtn.mock { display: flex; align-items: center; justify-content: center; opacity: 1; cursor: default; text-align: center; padding: 4px; }
+.lvbtn.mock.rec { background: var(--accent); color: var(--accent-fg); font-size: calc(12px * var(--fs, 1)); line-height: 1.2; }
+.lvbtn.mock.rec.r1 { opacity: .75; } .lvbtn.mock.rec.r2 { opacity: .55; } .lvbtn.mock.rec.r3 { background: var(--err); color: #fff; opacity: 1; }
+.mockfab { display: inline-flex; font-weight: 600; background: var(--accent-soft); color: var(--accent); border-radius: 16px; padding: 14px 18px; box-shadow: 0 3px 10px rgba(0,0,0,.2); }
+.sheet .foot .btn.text { width: auto; flex: 0 0 auto; }
+.sheet .foot .btn.filled { flex: 1; }
+.gear { background: var(--accent); color: var(--accent-fg); border-radius: 999px; padding: 8px 18px; min-height: 46px; gap: 8px; display: flex; align-items: center; font: inherit; font-weight: 700; font-size: calc(15px * var(--fs, 1)); box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+.usersbtn { display: flex; align-items: center; gap: 10px; width: 100%; text-align: start; font: inherit; font-weight: 600; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 52px; margin-bottom: 14px; cursor: pointer; }
+.usersbtn small { display: block; color: var(--muted); font-weight: 400; font-size: calc(12px * var(--fs, 1)); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="bar"><h1 id="ttl"></h1><div class="acts2"><button class="who" id="prof" type="button"></button><button class="gear" id="gear" type="button"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button></div></div>
+    <div class="bar"><h1 id="ttl"></h1><div class="acts2"><button class="who" id="prof" type="button"></button><button class="gear" id="gear" type="button"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span id="gearT"></span></button></div></div>
     <nav class="tabs" id="tabs" aria-label="Tabs"></nav>
   </header>
   <main id="main"></main>
@@ -386,6 +420,13 @@ main { gap: 8px; padding-top: 2px; }
     appTitle: "Hifz Revision Log", overview: "My Hifz", addPast: "Add revision", gradeT: "Grade", lastT: "Last revised", r0: "Today", r1: "1–3 days", r2: "4–6 days", r3: "Overdue", pastT: "Add a past revision", pastPick: "Choose the day, then the item you revised.", sLatest: "Latest", sGrade: "Grade", sortBy: "Sort by", addRev: "Add a revision", history: "History", addHizb: "Add memorised",
     fAll: "All", fWeak: "Weak", fLate: "Overdue", fNone: "Nothing matches this filter.", backupT: "Backup", backupBtn: "Backup", restoreBtn: "Restore", exportBtn: "Save as a file", importBtn: "From a file", sendMsg: "Send as a message", pasteBtn: "From a message", pastePh: "Paste the backup message here", copiedBk: "Backup copied. Paste it into WhatsApp.", msgHead: "Hifz Revision Log backup. To restore: Settings → Restore → From a message, then paste all of this.", installIt: "Install the app for full-screen and offline use.", installB: "Install", backupNote: "A backup file includes everyone on this device. Restoring replaces what is on this device.", saved: "Backup saved.", impBad: "That file is not a valid backup.", impAsk: "Replace everything on this device with this backup?", impDone: "Backup restored.", replaceB: "Replace",
     shareApp: "Share and earn the reward", shareText: "📖 A free app to help you memorise and revise the Quran. No sign-up, and it works offline. Share it with others and earn the reward: “Whoever guides to something good will have a reward like the one who does it.” (Muslim)", linkCopied: "Link copied.", iosHint: "Install it: tap the Share button, then “Add to Home Screen”.", closeB: "Close",
+    tourLang: "العربية", howTo: "How to use the app", tourNext: "Next", tourBack: "Back", tourSkip: "Skip", tourStart: "Start",
+    tourT0: "Welcome", tourQ: "What is your revision unit?", cTip1: "Tap here to add what you have memorised", cTip2: "Pick what you know, or tap “Add all”", cTip3: "Great! Now tap “Done”", cTip4: "Tap a box to log a revision", cTip5: "How well did you revise it?", cTip6: "Add any weak pages, then tap “Add revision”", cTip7: "Here you see your level and what is overdue. Tap any box to filter.", cTip8: "And from here: language, backup and sharing. You can reopen this guide from Settings.", tourDone: "Finish", tourLater: "You can change this later in Settings.",
+    ud_surah: "A whole surah, such as Al-Baqarah (114)", ud_page: "One page of the mushaf (604)", ud_rub: "A quarter of a hizb (240)", ud_hizb: "A hizb (60)", ud_juz: "A juz (30)",
+    tourT1: "Add what you have memorised", tourB1: "Tap “+ Add memorised” at the bottom of the screen and pick what you know. “Add all” adds a whole juz at once.",
+    tourT2: "Log a revision", tourB2: "Tap any box in My Hifz. Choose how well you revised it, from 25% to 100%, and note any weak pages. They are filled in next time, so you only remove what you have fixed. Revised the same one twice? Just add it again.",
+    tourT3: "See where you stand", tourB3: "Grade shows how strong each one is. Last revised shows what needs attention, and Overdue means 7 days or more. Tap any box in these rows to filter the list.",
+    tourT4: "More", tourB4: "History: edit or delete any entry. Add revision: log a day you forgot. Settings: language, text size, style, backup and sharing.", tourB4b: "You can reopen this guide any time from Settings.",
     unitT: "Hifz unit", unitNote: "Each unit keeps its own list and revisions.", u_surah: "Surah", u_page: "Page", u_rub: "Quarter of a hizb", u_hizb: "Hizb", u_juz: "Juz", addBoth: "Add all", removeBoth: "Remove all", done: "Done", cancel: "Cancel", del: "Delete",
     emptyTitle: "Nothing added yet", emptyBody: "Add what you have memorised, then mark what you revise each day.",
     tapToMark: "Tap to mark", lower: "Lower", weakPages: "Weak pages",
@@ -395,7 +436,7 @@ main { gap: 8px; padding-top: 2px; }
     logEmpty: "No revisions yet. Tap a box in My Hifz to log your first one.", logTap: "Tap an entry to edit it, or × to delete it.", editT: "Edit revision", saveB: "Save changes", prefillNote: "Taken from your last revision. Delete what you have fixed.",
     demoSeed: "Load sample data (demo only)",
     preview: "Your marks are saved on this device only.",
-    profiles: "Who is using the app?", addPerson: "Add a person", namePh: "Name", edit: "Edit", save: "Save",
+    profiles: "Who is using the app?", usersT: "Users", usersSub: "Add another person or switch user", addPerson: "Add a person", namePh: "Name", edit: "Edit", save: "Save",
     deletePersonQ: "Delete this person and all their marks?", me: "Me", person: "Person",
     settings: "Settings", langT: "Language", textSize: "Text size", size0: "Normal", size1: "Large", size2: "Extra large",
     style: "Style", s_classic: "Classic", s_minimal: "Minimal", s_soft: "Soft", s_blocks: "Blocks", s_emerald: "Emerald", s_glass: "Glass"
@@ -404,6 +445,13 @@ main { gap: 8px; padding-top: 2px; }
     appTitle: "سجل مراجعة الحفظ", overview: "حفظي", addPast: "إضافة مراجعة", gradeT: "التقدير", lastT: "آخر مراجعة", r0: "اليوم", r1: "١–٣ أيام", r2: "٤–٦ أيام", r3: "متأخر", pastT: "إضافة مراجعة سابقة", pastPick: "اختر اليوم، ثم ما راجعته.", sLatest: "الأحدث", sGrade: "التقدير", sortBy: "ترتيب حسب", addRev: "تسجيل مراجعة", history: "السجل", addHizb: "إضافة محفوظ",
     fAll: "الكل", fWeak: "ضعيف", fLate: "متأخر", fNone: "لا يوجد ما يطابق هذا الفلتر.", backupT: "النسخ الاحتياطي", backupBtn: "نسخ احتياطي", restoreBtn: "استعادة", exportBtn: "حفظ كملف", importBtn: "من ملف", sendMsg: "إرسال كرسالة", pasteBtn: "من رسالة", pastePh: "الصق رسالة النسخة هنا", copiedBk: "تم نسخ النسخة. الصقها في واتساب.", msgHead: "نسخة احتياطية لتطبيق سجل مراجعة الحفظ. للاستعادة: الإعدادات ← استعادة ← من رسالة، ثم الصق هذه الرسالة كاملة.", installIt: "ثبّت التطبيق ليعمل بملء الشاشة ودون إنترنت.", installB: "تثبيت", backupNote: "تشمل النسخة جميع الأشخاص على هذا الجهاز. الاستعادة تستبدل ما هو موجود على هذا الجهاز.", saved: "تم حفظ النسخة.", impBad: "هذا الملف ليس نسخة احتياطية صالحة.", impAsk: "هل تريد استبدال كل ما على هذا الجهاز بهذه النسخة؟", impDone: "تمت استعادة النسخة.", replaceB: "استبدال",
     shareApp: "شارك واكسب الأجر", shareText: "📖 تطبيق مجاني يعينك على حفظ القرآن ومراجعته، بلا تسجيل ويعمل دون إنترنت. شاركه مع غيرك واكسب الأجر: «مَن دَلَّ على خيرٍ فله مثلُ أجرِ فاعله» (رواه مسلم).", linkCopied: "تم نسخ الرابط.", iosHint: "لتثبيت التطبيق: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».", closeB: "إغلاق",
+    tourLang: "English", howTo: "كيف أستخدم التطبيق؟", tourNext: "التالي", tourBack: "السابق", tourSkip: "تخطّي", tourStart: "ابدأ",
+    tourT0: "أهلًا بك", tourQ: "ما هي وحدة مراجعتك؟", cTip1: "اضغط هنا لإضافة ما حفظته", cTip2: "اختر ما تحفظه، أو اضغط «إضافة الكل»", cTip3: "ممتاز! الآن اضغط «تم»", cTip4: "اضغط على أي مربع لتسجيل مراجعتك", cTip5: "كيف كانت مراجعتك؟", cTip6: "اكتب صفحاتك الضعيفة إن وجدت، ثم اضغط «إضافة مراجعة»", cTip7: "هنا ترى مستواك وما يحتاج مراجعة. اضغط على أي مربع للتصفية.", cTip8: "ومن هنا: اللغة والنسخ الاحتياطي والمشاركة. ويمكنك فتح هذا الدليل من الإعدادات.", tourDone: "انتهاء", tourLater: "يمكنك تغييرها لاحقًا من الإعدادات.",
+    ud_surah: "سورة كاملة، مثل البقرة (١١٤)", ud_page: "صفحة من المصحف (٦٠٤)", ud_rub: "ربع حزب (٢٤٠)", ud_hizb: "حزب (٦٠)", ud_juz: "جزء (٣٠)",
+    tourT1: "أضف ما حفظته", tourB1: "اضغط «+ إضافة محفوظ» أسفل الشاشة واختر ما تحفظه. زر «إضافة الكل» يضيف جزءًا كاملًا دفعة واحدة.",
+    tourT2: "سجّل مراجعتك", tourB2: "اضغط على أي مربع في «حفظي»، واختر مستوى مراجعتك من ٢٥٪ إلى ١٠٠٪، وسجّل الصفحات الضعيفة إن وجدت. ستظهر لك في المرة القادمة لتحذف منها ما أتقنته فقط. راجعت الشيء نفسه مرتين؟ أضفه مرة أخرى.",
+    tourT3: "اعرف مستواك", tourB3: "صف «التقدير» يبيّن قوة كل عنصر، وصف «آخر مراجعة» يبيّن ما يحتاج انتباهك، و«متأخر» يعني ٧ أيام أو أكثر. اضغط على أي مربع فيهما لتصفية القائمة.",
+    tourT4: "المزيد", tourB4: "«السجل»: عدّل أو احذف أي مراجعة. «إضافة مراجعة»: سجّل يومًا نسيته. «الإعدادات»: اللغة وحجم الخط والنمط والنسخ الاحتياطي والمشاركة.", tourB4b: "يمكنك فتح هذا الدليل في أي وقت من الإعدادات.",
     unitT: "وحدة الحفظ", unitNote: "لكل وحدة قائمتها ومراجعاتها الخاصة.", u_surah: "سورة", u_page: "صفحة", u_rub: "ربع حزب", u_hizb: "حزب", u_juz: "جزء", addBoth: "إضافة الكل", removeBoth: "إزالة الكل", done: "تم", cancel: "إلغاء", del: "حذف",
     emptyTitle: "لم تُضف شيئًا بعد", emptyBody: "أضف ما حفظته، ثم سجّل ما تراجعه كل يوم.",
     tapToMark: "اضغط للتقييم", lower: "خفض", weakPages: "الصفحات الضعيفة",
@@ -413,7 +461,7 @@ main { gap: 8px; padding-top: 2px; }
     logEmpty: "لا توجد مراجعات بعد. اضغط على مربع في حفظي لتسجيل أول مراجعة.", logTap: "اضغط على أي مراجعة لتعديلها، أو × لحذفها.", editT: "تعديل المراجعة", saveB: "حفظ التعديلات", prefillNote: "مأخوذة من آخر مراجعة. احذف ما أتقنته.",
     demoSeed: "تحميل بيانات تجريبية (للعرض فقط)",
     preview: "تُحفظ تقييماتك على هذا الجهاز فقط.",
-    profiles: "من يستخدم التطبيق؟", addPerson: "إضافة شخص", namePh: "الاسم", edit: "تعديل", save: "حفظ",
+    profiles: "من يستخدم التطبيق؟", usersT: "المستخدمون", usersSub: "إضافة شخص آخر أو تبديل المستخدم", addPerson: "إضافة شخص", namePh: "الاسم", edit: "تعديل", save: "حفظ",
     deletePersonQ: "هل تريد حذف هذا الشخص وكل تقييماته؟", me: "أنا", person: "شخص",
     settings: "الإعدادات", langT: "اللغة", textSize: "حجم الخط", size0: "عادي", size1: "كبير", size2: "كبير جدًا",
     style: "النمط", s_classic: "كلاسيكي", s_minimal: "بسيط", s_soft: "ناعم", s_blocks: "ألوان", s_emerald: "زمردي", s_glass: "زجاجي"
@@ -425,7 +473,7 @@ main { gap: 8px; padding-top: 2px; }
   var LX = ["#ffffff", "#1b0f00", "#1b1600", "#ffffff"];
   var AVC = ["#2c4691", "#2f9455", "#d9731a", "#8a4fbf", "#c93a47", "#0f8b8d"];
   var db = null, st = null;
-  var revEdit = null, revWT = false, impMsg = "", impPend = null, installEv = null, pasteOpen = false, pasteTxt = "", bkOpen = null, hintGone = false; try { hintGone = localStorage.getItem("hifz-hint") === "1"; } catch (x) {}
+  var tourStep = 0, revEdit = null, revWT = false, impMsg = "", impPend = null, installEv = null, pasteOpen = false, pasteTxt = "", bkOpen = null, hintGone = false; try { hintGone = localStorage.getItem("hifz-hint") === "1"; } catch (x) {}
   var tab = "ov", addDay = null, revH = null, revL = null, gF = null, tF = null, pastDay = null, revW = "", delK = null, sheetMode = null, editingId = null, delPersonArmed = false, delArmed = false;
 
   function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -649,6 +697,7 @@ main { gap: 8px; padding-top: 2px; }
     var d = e("div", "empty card");
     d.appendChild(e("h2", null, T("emptyTitle"))); d.appendChild(e("p", null, T("emptyBody")));
     var b = e("button", "btn filled", "+ " + T("addHizb")); b.type = "button"; b.onclick = openSheet; d.appendChild(b);
+    var hw = e("button", "btn text", T("howTo")); hw.type = "button"; hw.onclick = function () { tourStep = 0; sheetMode = "tour"; render(); }; d.appendChild(hw);
     if (DEMO) { var s2 = e("button", "btn text", T("demoSeed")); s2.type = "button"; s2.onclick = seedDemo; d.appendChild(s2); }
     main.appendChild(d);
   }
@@ -819,7 +868,7 @@ main { gap: 8px; padding-top: 2px; }
     var idx = db.profiles.indexOf(p), a = e("span", "av", (Array.from(dispName(p))[0] || "?").toUpperCase());
     a.style.background = AVC[(idx < 0 ? 0 : idx) % AVC.length]; return a;
   }
-  function closeSheet() { revEdit = null; revWT = false; impMsg = ""; impPend = null; bkOpen = null; pasteOpen = false; pasteTxt = ""; revW = ""; revL = null; sheetMode = null; editingId = null; delPersonArmed = false; render(); }
+  function closeSheet() { if (sheetMode === "tour") { tourStep = 0; try { localStorage.setItem("hifz-tour", "1"); } catch (x) {} } revEdit = null; revWT = false; impMsg = ""; impPend = null; bkOpen = null; pasteOpen = false; pasteTxt = ""; revW = ""; revL = null; sheetMode = null; editingId = null; delPersonArmed = false; render(); }
   function openSheet() { sheetMode = "add"; render(); }
   function switchTo(id) { for (var i = 0; i < db.profiles.length; i++) if (db.profiles[i].id === id) { st = db.profiles[i]; db.active = id; } tab = "ov"; delArmed = false; sheetMode = null; editingId = null; save(); render(); }
   function deletePerson(id) {
@@ -906,6 +955,7 @@ main { gap: 8px; padding-top: 2px; }
   function settingsSheet(sh) {
     sh.appendChild(e("h2", null, T("settings")));
     var list = e("div", "list");
+    var ub = e("button", "usersbtn"); ub.type = "button"; var uc = e("div"); uc.appendChild(avatar(st)); ub.appendChild(uc); var ut = e("div"); ut.appendChild(e("span", null, T("usersT") + " · " + dispName(st))); ut.appendChild(e("small", null, T("usersSub"))); ub.appendChild(ut); ub.onclick = function () { sheetMode = "profiles"; editingId = null; delPersonArmed = false; render(); }; list.appendChild(ub);
     list.appendChild(seg(T("langT"), [["ar", "العربية"], ["en", "English"]], st.lang, function (v) { st.lang = v; }));
     list.appendChild(seg(T("unitT"), UK.map(function (k) { return [k, T("u_" + k)]; }), st.unit, function (v) { st.unit = v; slot(st); revH = null; delK = null; }, "two"));
     list.appendChild(e("p", "note", T("unitNote")));
@@ -944,6 +994,7 @@ main { gap: 8px; padding-top: 2px; }
     }
     if (impMsg) { var mm = e("p", "note okmsg", impMsg); mm.setAttribute("role", "status"); list.appendChild(mm); }
     if (installEv) { var ib = e("button", "seg sharebtn", T("installB")); ib.type = "button"; ib.onclick = doInstall; list.appendChild(ib); }
+    var tb2 = e("button", "seg sharebtn", "? " + T("howTo")); tb2.type = "button"; tb2.onclick = function () { tourStep = 0; sheetMode = "tour"; render(); }; list.appendChild(tb2);
     var sa = e("button", "seg sharebtn", "↗ " + T("shareApp")); sa.type = "button"; sa.onclick = shareApp; list.appendChild(sa);
     sh.appendChild(list); doneFoot(sh);
   }
@@ -1031,6 +1082,105 @@ main { gap: 8px; padding-top: 2px; }
     h.appendChild(x); return h;
   }
 
+  function tourSheet(sh) {
+    var hd = e("div", "tourhd");
+    hd.appendChild(e("h2", null, T("tourT0")));
+    var lg = e("button", "btn text small", T("tourLang")); lg.type = "button"; lg.onclick = function () { st.lang = ar() ? "en" : "ar"; save(); render(); }; hd.appendChild(lg);
+    sh.appendChild(hd);
+    var list = e("div", "list tourbody");
+    list.appendChild(e("p", "tq", T("tourQ")));
+    UK.forEach(function (k) {
+      var b = e("button", "uopt"); b.type = "button"; b.setAttribute("aria-pressed", String(st.unit === k));
+      b.appendChild(e("b", null, T("u_" + k))); b.appendChild(e("small", null, T("ud_" + k)));
+      b.onclick = function () { st.unit = k; slot(st); save(); render(); }; list.appendChild(b);
+    });
+    list.appendChild(e("p", "note", T("tourLater")));
+    sh.appendChild(list);
+    var ft = e("div", "foot");
+    var left = e("button", "btn text", T("tourSkip")); left.type = "button"; left.onclick = closeSheet; ft.appendChild(left);
+    var nx = e("button", "btn filled", T("tourNext")); nx.type = "button";
+    nx.onclick = function () { closeSheet(); tab = "ov"; tourLive = true; tourStep = 1; tourBase = revCount(); render(); };
+    ft.appendChild(nx); sh.appendChild(ft);
+  }
+
+  // ---- Live tour: darkens the page, lights up the thing to tap, and writes the step by hand ----
+  var tourLive = false, tourBase = 0, tourScrolled = -1;
+  function revCount() { return Object.keys(st.rev).length; }
+  function tourEls(sels, firstOnly) {
+    var out = [];
+    sels.forEach(function (q) { if (firstOnly) { var x = document.querySelector(q); if (x) out.push(x); } else document.querySelectorAll(q).forEach(function (x) { out.push(x); }); });
+    return out;
+  }
+  var STEPS = [null,
+    { tip: "cTip1", sel: [".empty .btn.filled"], alt: ["#fab"], first: 1, ok: function () { return tab === "ov" && !sheetMode; }, done: function () { return sheetMode === "add" || st.tracked.length > 0; } },
+    { tip: "cTip2", sel: [".sheet .item-h .btn"], first: 1, ok: function () { return sheetMode === "add"; }, done: function () { return st.tracked.length > 0; } },
+    { tip: "cTip3", sel: [".sheet .foot .btn"], first: 1, ok: function () { return sheetMode === "add" && st.tracked.length > 0; }, done: function () { return !sheetMode && st.tracked.length > 0; } },
+    { tip: "cTip4", sel: [".tile"], first: 1, ok: function () { return tab === "ov" && !sheetMode && st.tracked.length > 0; }, done: function () { return sheetMode === "rev"; } },
+    { tip: "cTip5", sel: [".sheet .lvgrid"], first: 1, ok: function () { return sheetMode === "rev"; }, done: function () { return revL !== null; } },
+    { tip: "cTip6", sel: ["#rev-w", ".sheet .foot .btn.filled"], first: 1, ok: function () { return sheetMode === "rev" && revL !== null; }, done: function () { return !sheetMode && revCount() > tourBase; } },
+    { tip: "cTip7", sel: [".stats5"], pass: 1, ok: function () { return tab === "ov" && !sheetMode; } },
+    { tip: "cTip8", sel: ["#gear"], first: 1, pass: 1, last: 1, ok: function () { return !sheetMode; } }
+  ];
+  function coachEl() {
+    var c = document.getElementById("coach");
+    if (!c) {
+      c = e("div", "coach"); c.id = "coach"; c.hidden = true;
+      ["t", "b", "l", "r"].forEach(function (k) { var d = e("div", "cp cp-" + k); c.appendChild(d); });
+      c.appendChild(e("div", "cring"));
+      var tip = e("div", "ctip"); tip.setAttribute("role", "status"); tip.setAttribute("aria-live", "polite");
+      tip.innerHTML = '<svg class="carrow" viewBox="0 0 60 70" width="46" height="54" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 66 C 6 40, 30 38, 36 12"/><path d="M22 20 L36 10 L44 26"/></svg><div class="ctext"></div><div class="cbtns"></div>';
+      c.appendChild(tip); document.body.appendChild(c);
+    }
+    return c;
+  }
+  function endTour() { tourLive = false; tourStep = 0; var c = document.getElementById("coach"); if (c) c.hidden = true; }
+  function coachSync() {
+    var c = coachEl();
+    if (!tourLive) { c.hidden = true; return; }
+    var guard = 0, s = null;
+    while (guard++ < 14) {
+      s = STEPS[tourStep];
+      if (!s) { endTour(); return; }
+      if (s.done && s.done()) { tourStep++; continue; }
+      if (!s.ok()) { if (s.pass || tourStep <= 1) { c.hidden = true; return; } tourStep--; continue; }
+      break;
+    }
+    if (guard >= 14 || !s) { c.hidden = true; return; }
+    var els = tourEls(s.sel, s.first); if (!els.length && s.alt) els = tourEls(s.alt, 1); if (!els.length) { c.hidden = true; return; }
+    if (tourScrolled !== tourStep) { tourScrolled = tourStep; try { els[0].scrollIntoView({ block: "nearest" }); } catch (x) {} }
+    c.hidden = false;
+    var txt = c.querySelector(".ctext"); txt.textContent = T(s.tip);
+    var bt = c.querySelector(".cbtns"); bt.textContent = "";
+    var sk = e("button", "cbtn", T("tourSkip")); sk.type = "button"; sk.onclick = endTour; bt.appendChild(sk);
+    if (s.pass) { var nx = e("button", "cbtn main", s.last ? T("tourDone") : T("tourNext")); nx.type = "button"; nx.onclick = function () { if (s.last) endTour(); else { tourStep++; render(); } }; bt.appendChild(nx); }
+    requestAnimationFrame(function () { placeCoach(els); });
+    placeCoach(els);
+  }
+  function placeCoach(els) {
+    var c = document.getElementById("coach"); if (!c || c.hidden) return;
+    var W = c.clientWidth, H = c.clientHeight, pad = 8, l = 1e9, t = 1e9, r = -1, b = -1;
+    els.forEach(function (el) { var q = el.getBoundingClientRect(); l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom); });
+    l = Math.max(0, l - pad); t = Math.max(0, t - pad); r = Math.min(W, r + pad); b = Math.min(H, b + pad);
+    function box(k, x, y, w, h) { var d = c.querySelector(".cp-" + k); d.style.cssText = "left:" + x + "px;top:" + y + "px;width:" + Math.max(0, w) + "px;height:" + Math.max(0, h) + "px"; }
+    box("t", 0, 0, W, t); box("b", 0, b, W, H - b); box("l", 0, t, l, b - t); box("r", r, t, W - r, b - t);
+    var ring = c.querySelector(".cring"); ring.style.cssText = "left:" + l + "px;top:" + t + "px;width:" + (r - l) + "px;height:" + (b - t) + "px";
+    var tip = c.querySelector(".ctip"), tw = Math.min(300, W - 32);
+    tip.style.width = tw + "px";
+    var th = tip.offsetHeight, below = (H - b) >= (t > H - b ? 9999 : th + 70) || (H - b) >= th + 70;
+    if (t > (H - b) && (H - b) < th + 70) below = false;
+    var cx = (l + r) / 2, left = Math.max(16, Math.min(W - tw - 16, cx - tw / 2));
+    var top = below ? b + 6 : Math.max(8, t - th - 6);
+    tip.style.left = left + "px"; tip.style.top = top + "px";
+    var arrow = tip.querySelector(".carrow"), ax = Math.max(8, Math.min(tw - 54, cx - left - 23));
+    arrow.style.cssText = "position:absolute;" + (below ? "top:-2px;transform:none;" : "bottom:-2px;transform:scaleY(-1);") + "left:" + ax + "px;";
+    tip.style.paddingTop = below ? "52px" : "0"; tip.style.paddingBottom = below ? "0" : "52px";
+    if (below) tip.style.top = (b + 4) + "px"; else tip.style.top = Math.max(8, t - th - 4) + "px";
+  }
+  window.addEventListener("resize", function () { if (tourLive) coachSync(); });
+  document.addEventListener("scroll", function () { if (tourLive) coachSync(); }, true);
+  function tourSeen() { try { return localStorage.getItem("hifz-tour") === "1"; } catch (x) { return true; } }
+  function isFresh() { return db.profiles.every(function (p) { return UK.every(function (k) { return !p.u[k] || (!p.u[k].tracked.length && !Object.keys(p.u[k].rev).length); }); }); }
+
   function renderSheet() {
     var scrim = $("#scrim"), sh = $("#sheet"); scrim.hidden = !sheetMode;
     var oldList = sh.querySelector(".list"), keepTop = (oldList && sh.getAttribute("data-mode") === sheetMode) ? oldList.scrollTop : 0;
@@ -1039,6 +1189,7 @@ main { gap: 8px; padding-top: 2px; }
     if (sheetMode === "add") addSheet(sh, keepTop);
     else if (sheetMode === "rev") revSheet(sh);
     else if (sheetMode === "past") pastSheet(sh);
+    else if (sheetMode === "tour") tourSheet(sh);
     else if (sheetMode === "profiles") { profilesSheet(sh); var l2 = sh.querySelector(".list"); if (l2) l2.scrollTop = keepTop; }
     else settingsSheet(sh);
   }
@@ -1056,14 +1207,16 @@ main { gap: 8px; padding-top: 2px; }
     if (st.size) root.setAttribute("data-size", String(st.size)); else root.removeAttribute("data-size");
     $("#ttl").textContent = T("appTitle"); $("#pn").textContent = T("preview");
     var who = $("#prof"); who.textContent = ""; who.appendChild(avatar(st)); who.appendChild(e("span", "nm", dispName(st))); who.setAttribute("aria-label", T("profiles")); who.title = T("profiles");
-    $("#gear").setAttribute("aria-label", T("settings")); $("#gear").title = T("settings");
+    $("#gearT").textContent = T("settings"); $("#prof").hidden = db.profiles.length < 2; $("#gear").setAttribute("aria-label", T("settings")); $("#gear").title = T("settings");
     renderTabs();
     var main = $("#main"); main.textContent = "";
     if (tab === "ov" && hintOn()) main.appendChild(hintEl());
     if (tab === "ov") overview(main); else logView(main);
     var fab = $("#fab"); fab.hidden = tab !== "ov"; fab.textContent = "+ " + T("addHizb");
     renderSheet();
+    coachSync();
   }
+  if (!tourSeen()) { sheetMode = "tour"; tourStep = 0; }
   render();
 })();
 </script>
