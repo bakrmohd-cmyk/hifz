@@ -400,6 +400,10 @@ main { gap: 8px; padding-top: 2px; }
 .gear { background: var(--accent); color: var(--accent-fg); border-radius: 999px; padding: 8px 18px; min-height: 46px; gap: 8px; display: flex; align-items: center; font: inherit; font-weight: 700; font-size: calc(15px * var(--fs, 1)); box-shadow: 0 2px 6px rgba(0,0,0,.2); }
 .usersbtn { display: flex; align-items: center; gap: 10px; width: 100%; text-align: start; font: inherit; font-weight: 600; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 52px; margin-bottom: 14px; cursor: pointer; }
 .usersbtn small { display: block; color: var(--muted); font-weight: 400; font-size: calc(12px * var(--fs, 1)); }
+.fcard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px; }
+.fseg { display: flex; background: var(--surface2); border-radius: 12px; padding: 3px; gap: 3px; margin-bottom: 10px; }
+.fseg .fs { flex: 1; font: inherit; font-size: calc(13.5px * var(--fs, 1)); border: 0; background: transparent; color: var(--muted); border-radius: 10px; padding: 8px 6px; cursor: pointer; min-height: 38px; }
+.fseg .fs.on { background: var(--surface); color: var(--fg); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
 </style>
 </head>
 <body>
@@ -421,7 +425,7 @@ main { gap: 8px; padding-top: 2px; }
     fAll: "All", fWeak: "Weak", fLate: "Overdue", fNone: "Nothing matches this filter.", backupT: "Backup", backupBtn: "Backup", restoreBtn: "Restore", exportBtn: "Save as a file", importBtn: "From a file", sendMsg: "Send as a message", pasteBtn: "From a message", pastePh: "Paste the backup message here", copiedBk: "Backup copied. Paste it into WhatsApp.", msgHead: "Hifz Revision Log backup. To restore: Settings → Restore → From a message, then paste all of this.", installIt: "Install the app for full-screen and offline use.", installB: "Install", backupNote: "A backup file includes everyone on this device. Restoring replaces what is on this device.", saved: "Backup saved.", impBad: "That file is not a valid backup.", impAsk: "Replace everything on this device with this backup?", impDone: "Backup restored.", replaceB: "Replace",
     shareApp: "Share and earn the reward", shareText: "📖 A free app to help you memorise and revise the Quran. No sign-up, and it works offline. Share it with others and earn the reward: “Whoever guides to something good will have a reward like the one who does it.” (Muslim)", linkCopied: "Link copied.", iosHint: "Install it: tap the Share button, then “Add to Home Screen”.", closeB: "Close",
     tourLang: "العربية", howTo: "How to use the app", tourNext: "Next", tourBack: "Back", tourSkip: "Skip", tourStart: "Start",
-    tourT0: "Welcome", tourQ: "What is your revision unit?", cTip1: "Step 1: every time you memorise something new, add it here", cTip2: "Pick what you know, or tap “Add all”", cTip3: "Great! Now tap “Done”", cTip4: "Tap a box to log a revision", cTip5: "How well did you revise it?", cTip6: "Add any weak pages, then tap “Add revision”", cTip7: "Here you see your level and what is overdue. Tap any box to filter.", cTip8: "And from here: language, backup and sharing. You can reopen this guide from Settings.", tourDone: "Finish", tourLater: "You can change this later in Settings.",
+    tourT0: "Welcome", tourQ: "What is your revision unit?", cTip1: "Step 1: every time you memorise something new, add it here", cTip2: "Pick what you know, or tap “Add all”", cTip3: "Great! Now tap “Done”", cTip4: "Tap a box to log a revision", cTip5: "How well did you revise it?", cTip6: "Add any weak pages, then tap “Add revision”", cTip7: "Here you see your level and what is overdue. Tap any box to filter.", cTip8: "Tap Settings. Language, backup, sharing and users are all here.", cTip9: "Several people can use the app (family, friends). Add a user here; once added, their name shows at the top and one tap switches between them. Each person has separate marks.", tourDone: "Finish", tourLater: "You can change this later in Settings.",
     ud_surah: "A whole surah, such as Al-Baqarah (114)", ud_page: "One page of the mushaf (604)", ud_rub: "A quarter of a hizb (240)", ud_hizb: "A hizb (60)", ud_juz: "A juz (30)",
     tourT1: "Add what you have memorised", tourB1: "Tap “+ Add memorised” at the bottom of the screen and pick what you know. “Add all” adds a whole juz at once.",
     tourT2: "Log a revision", tourB2: "Tap any box in My Hifz. Choose how well you revised it, from 25% to 100%, and note any weak pages. They are filled in next time, so you only remove what you have fixed. Revised the same one twice? Just add it again.",
@@ -446,7 +450,7 @@ main { gap: 8px; padding-top: 2px; }
     fAll: "الكل", fWeak: "ضعيف", fLate: "متأخر", fNone: "لا يوجد ما يطابق هذا الفلتر.", backupT: "النسخ الاحتياطي", backupBtn: "نسخ احتياطي", restoreBtn: "استعادة", exportBtn: "حفظ كملف", importBtn: "من ملف", sendMsg: "إرسال كرسالة", pasteBtn: "من رسالة", pastePh: "الصق رسالة النسخة هنا", copiedBk: "تم نسخ النسخة. الصقها في واتساب.", msgHead: "نسخة احتياطية لتطبيق سجل مراجعة الحفظ. للاستعادة: الإعدادات ← استعادة ← من رسالة، ثم الصق هذه الرسالة كاملة.", installIt: "ثبّت التطبيق ليعمل بملء الشاشة ودون إنترنت.", installB: "تثبيت", backupNote: "تشمل النسخة جميع الأشخاص على هذا الجهاز. الاستعادة تستبدل ما هو موجود على هذا الجهاز.", saved: "تم حفظ النسخة.", impBad: "هذا الملف ليس نسخة احتياطية صالحة.", impAsk: "هل تريد استبدال كل ما على هذا الجهاز بهذه النسخة؟", impDone: "تمت استعادة النسخة.", replaceB: "استبدال",
     shareApp: "شارك واكسب الأجر", shareText: "📖 تطبيق مجاني يعينك على حفظ القرآن ومراجعته، بلا تسجيل ويعمل دون إنترنت. شاركه مع غيرك واكسب الأجر: «مَن دَلَّ على خيرٍ فله مثلُ أجرِ فاعله» (رواه مسلم).", linkCopied: "تم نسخ الرابط.", iosHint: "لتثبيت التطبيق: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».", closeB: "إغلاق",
     tourLang: "English", howTo: "كيف أستخدم التطبيق؟", tourNext: "التالي", tourBack: "السابق", tourSkip: "تخطّي", tourStart: "ابدأ",
-    tourT0: "أهلًا بك", tourQ: "ما هي وحدة مراجعتك؟", cTip1: "الخطوة الأولى: كلما حفظت جزءًا جديدًا، أضفه من هنا", cTip2: "اختر ما تحفظه، أو اضغط «إضافة الكل»", cTip3: "ممتاز! الآن اضغط «تم»", cTip4: "اضغط على أي مربع لتسجيل مراجعتك", cTip5: "كيف كانت مراجعتك؟", cTip6: "اكتب صفحاتك الضعيفة إن وجدت، ثم اضغط «إضافة مراجعة»", cTip7: "هنا ترى مستواك وما يحتاج مراجعة. اضغط على أي مربع للتصفية.", cTip8: "ومن هنا: اللغة والنسخ الاحتياطي والمشاركة. ويمكنك فتح هذا الدليل من الإعدادات.", tourDone: "انتهاء", tourLater: "يمكنك تغييرها لاحقًا من الإعدادات.",
+    tourT0: "أهلًا بك", tourQ: "ما هي وحدة مراجعتك؟", cTip1: "الخطوة الأولى: كلما حفظت جزءًا جديدًا، أضفه من هنا", cTip2: "اختر ما تحفظه، أو اضغط «إضافة الكل»", cTip3: "ممتاز! الآن اضغط «تم»", cTip4: "اضغط على أي مربع لتسجيل مراجعتك", cTip5: "كيف كانت مراجعتك؟", cTip6: "اكتب صفحاتك الضعيفة إن وجدت، ثم اضغط «إضافة مراجعة»", cTip7: "هنا ترى مستواك وما يحتاج مراجعة. اضغط على أي مربع للتصفية.", cTip8: "اضغط «الإعدادات». فيها اللغة والنسخ الاحتياطي والمشاركة والمستخدمون.", cTip9: "يمكن لعدة أشخاص استخدام التطبيق (العائلة والأصدقاء). أضف مستخدمًا من هنا، وبعد إضافته يظهر اسمه في الأعلى وبضغطة واحدة تنتقل بين المستخدمين. لكل شخص تسجيله الخاص.", tourDone: "انتهاء", tourLater: "يمكنك تغييرها لاحقًا من الإعدادات.",
     ud_surah: "سورة كاملة، مثل البقرة (١١٤)", ud_page: "صفحة من المصحف (٦٠٤)", ud_rub: "ربع حزب (٢٤٠)", ud_hizb: "حزب (٦٠)", ud_juz: "جزء (٣٠)",
     tourT1: "أضف ما حفظته", tourB1: "اضغط «+ إضافة محفوظ» أسفل الشاشة واختر ما تحفظه. زر «إضافة الكل» يضيف جزءًا كاملًا دفعة واحدة.",
     tourT2: "سجّل مراجعتك", tourB2: "اضغط على أي مربع في «حفظي»، واختر مستوى مراجعتك من ٢٥٪ إلى ١٠٠٪، وسجّل الصفحات الضعيفة إن وجدت. ستظهر لك في المرة القادمة لتحذف منها ما أتقنته فقط. راجعت الشيء نفسه مرتين؟ أضفه مرة أخرى.",
@@ -473,7 +477,7 @@ main { gap: 8px; padding-top: 2px; }
   var LX = ["#ffffff", "#1b0f00", "#1b1600", "#ffffff"];
   var AVC = ["#2c4691", "#2f9455", "#d9731a", "#8a4fbf", "#c93a47", "#0f8b8d"];
   var db = null, st = null;
-  var tourStep = 0, revEdit = null, revWT = false, impMsg = "", impPend = null, installEv = null, pasteOpen = false, pasteTxt = "", bkOpen = null, hintGone = false; try { hintGone = localStorage.getItem("hifz-hint") === "1"; } catch (x) {}
+  var fView = "g", tourStep = 0, revEdit = null, revWT = false, impMsg = "", impPend = null, installEv = null, pasteOpen = false, pasteTxt = "", bkOpen = null, hintGone = false; try { hintGone = localStorage.getItem("hifz-hint") === "1"; } catch (x) {}
   var tab = "ov", addDay = null, revH = null, revL = null, gF = null, tF = null, pastDay = null, revW = "", delK = null, sheetMode = null, editingId = null, delPersonArmed = false, delArmed = false;
 
   function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -709,7 +713,12 @@ main { gap: 8px; padding-top: 2px; }
     var rb = function (q) { return !q ? 3 : q.days === 0 ? 0 : q.days <= 3 ? 1 : q.days <= 6 ? 2 : 3; };
     var rc = [0, 0, 0, 0]; tracked().forEach(function (h) { rc[rb(statsBy[h])]++; });
     function capt(txt) { main.appendChild(e("div", "cap", txt)); }
-    capt(T("gradeT"));
+    var fc = e("div", "fcard"), sg = e("div", "fseg");
+    [["g", T("gradeT")], ["r", T("lastT")]].forEach(function (o) {
+      var b = e("button", "fs" + (fView === o[0] ? " on" : ""), o[1]); b.type = "button"; b.setAttribute("aria-pressed", String(fView === o[0]));
+      b.onclick = function () { if (fView !== o[0]) { fView = o[0]; gF = null; tF = null; render(); } }; sg.appendChild(b);
+    });
+    fc.appendChild(sg);
     var stats = e("div", "stats5");
     [3, 2, 1, 0].forEach(function (i) {
       var c = e("button", "card stat" + (gF === i ? " on" : "")); c.type = "button"; c.setAttribute("aria-pressed", String(gF === i));
@@ -717,15 +726,13 @@ main { gap: 8px; padding-top: 2px; }
       c.appendChild(e("b", null, dg(counts[i]))); c.appendChild(e("small", null, lvPct(i)));
       c.onclick = function () { gF = gF === i ? null : i; tF = null; render(); }; stats.appendChild(c);
     });
-    main.appendChild(stats);
-    capt(T("lastT"));
     var rs = e("div", "stats5 recency");
     [0, 1, 2, 3].forEach(function (i) {
       var c = e("button", "card stat rstat r" + i + (tF === i ? " on" : "")); c.type = "button"; c.setAttribute("aria-pressed", String(tF === i));
       c.appendChild(e("i")); c.appendChild(e("b", null, dg(rc[i]))); c.appendChild(e("small", null, T("r" + i)));
       c.onclick = function () { tF = tF === i ? null : i; gF = null; render(); }; rs.appendChild(c);
     });
-    main.appendChild(rs);
+    fc.appendChild(fView === "g" ? stats : rs); main.appendChild(fc);
     var vis = tracked().filter(function (h) { return (gF === null || (statsBy[h] && statsBy[h].bucket === gF)) && (tF === null || rb(statsBy[h]) === tF); }), grid = e("div", "grid"), juzs = [];
     vis.forEach(function (h) { var j = juzOf(h); if (juzs.indexOf(j) < 0) juzs.push(j); });
     juzs.forEach(function (j) {
@@ -1118,8 +1125,9 @@ main { gap: 8px; padding-top: 2px; }
     { tip: "cTip4", sel: [".tile"], first: 1, ok: function () { return tab === "ov" && !sheetMode && st.tracked.length > 0; }, done: function () { return sheetMode === "rev"; } },
     { tip: "cTip5", sel: [".sheet .lvgrid"], first: 1, ok: function () { return sheetMode === "rev"; }, done: function () { return revL !== null; } },
     { tip: "cTip6", sel: ["#rev-w", ".sheet .foot .btn.filled"], first: 1, ok: function () { return sheetMode === "rev" && revL !== null; }, done: function () { return !sheetMode && revCount() > tourBase; } },
-    { tip: "cTip7", sel: [".stats5"], pass: 1, ok: function () { return tab === "ov" && !sheetMode; } },
-    { tip: "cTip8", sel: ["#gear"], first: 1, pass: 1, last: 1, ok: function () { return !sheetMode; } }
+    { tip: "cTip7", sel: [".fcard"], pass: 1, ok: function () { return tab === "ov" && !sheetMode; } },
+    { tip: "cTip8", sel: ["#gear"], first: 1, ok: function () { return !sheetMode; }, done: function () { return sheetMode === "settings"; } },
+    { tip: "cTip9", sel: [".usersbtn"], first: 1, pass: 1, last: 1, ok: function () { return sheetMode === "settings"; } }
   ];
   function coachEl() {
     var c = document.getElementById("coach");
@@ -1152,7 +1160,7 @@ main { gap: 8px; padding-top: 2px; }
     var txt = c.querySelector(".ctext"); txt.textContent = T(s.tip);
     var bt = c.querySelector(".cbtns"); bt.textContent = "";
     var sk = e("button", "cbtn", T("tourSkip")); sk.type = "button"; sk.onclick = endTour; bt.appendChild(sk);
-    if (s.pass || (s.passIf && s.passIf())) { var nx = e("button", "cbtn main", s.last ? T("tourDone") : T("tourNext")); nx.type = "button"; nx.onclick = function () { if (s.last) endTour(); else { if (s.passIf) tourAck = true; tourStep++; render(); } }; bt.appendChild(nx); }
+    if (s.pass || (s.passIf && s.passIf())) { var nx = e("button", "cbtn main", s.last ? T("tourDone") : T("tourNext")); nx.type = "button"; nx.onclick = function () { if (s.last) { endTour(); closeSheet(); } else { if (s.passIf) tourAck = true; tourStep++; render(); } }; bt.appendChild(nx); }
     requestAnimationFrame(function () { placeCoach(els); });
     placeCoach(els);
   }
